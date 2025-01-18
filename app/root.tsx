@@ -48,7 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </Link>
               <div className="space-x-2 flex flex-row items-center">
                 {navigation.state !== "idle" ?
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" /> : null}
+                  <div className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white" /> : null}
                 <Link rel="prefetch" to="/about" className="text-white">[about]</Link>
                 <Link to="https://github.com/famasya/murzfeed-lite" rel="noreferrer" target="_blank" className="text-white">[code]</Link>
               </div>

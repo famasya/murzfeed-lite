@@ -3,12 +3,14 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import useSWRMutation from "swr/mutation";
+import { reformatUrls } from "~/utils";
 import type { PostResponse } from "../posts";
 import type { CommentsResponse, Replies } from "./comments";
 
 const baseFetch =
   "https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents:runQuery";
 export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const postId = params.id?.split('-').pop()
   const getPost = await fetch(baseFetch, {
     method: "POST",
     headers: {
@@ -23,7 +25,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             },
             op: "EQUAL",
             value: {
-              stringValue: params.id,
+              stringValue: postId,
             },
           },
         },
@@ -57,7 +59,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
             },
             op: "EQUAL",
             value: {
-              stringValue: params.id,
+              stringValue: postId,
             },
           },
         },
@@ -96,7 +98,10 @@ export default function Post() {
   const { trigger } = useSWRMutation("loadReplies", async (_, { arg }: { arg: string }) => {
     const getReplies = await fetch(`https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents/comments/${arg}/replies`)
     const replies = (await getReplies.json()) as Replies;
-    return { arg, replies }
+    const orderedReplies = replies.documents.sort((a, b) => {
+      return new Date(b.fields.updatedAt.timestampValue).getTime() - new Date(a.fields.updatedAt.timestampValue).getTime()
+    })
+    return { arg, replies: { documents: orderedReplies } }
   }, {
     onSuccess: ({ arg, replies }) => {
       setReplies(prev => new Map(prev).set(arg, replies))
@@ -104,14 +109,16 @@ export default function Post() {
   })
 
   if (!post.document) {
-    return <div className="mt-2">Not found. U lost?</div>;
+    return <div className="mt-2">Not found. U lost son?</div>;
   }
+
   const img = post.document.fields.imageURL.arrayValue?.values?.[0].stringValue
   return (
     <div className="mt-2 mb-8" id="top">
       <h1 className="font-bold text-lg">{post.document.fields.title.stringValue}</h1>
       <p className="my-1">{img && <img src={img} alt="" />}</p>
-      <p className="my-2">{post.document.fields.content.stringValue}</p>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
+      <p className="my-2" dangerouslySetInnerHTML={{ __html: reformatUrls(post.document.fields.content.stringValue) }} />
       <p className="my-2"><Link className="text-red-600 font-semibold" to={`https://murzfeed.com/p/${post.document.fields.titleSlug.stringValue}`} target="_blank" rel="noreferrer">[Original post]</Link></p>
 
       <div className="flex flex-col gap-2 pt-2 border-t-[1px]">
@@ -123,7 +130,7 @@ export default function Post() {
           const { document } = comment;
           const commentReplies = replies.get(document.fields.commentId.stringValue)
           return (
-            <div className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2" key={document.fields.commentId.stringValue}>
+            <div className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2" key={document.fields.commentId.stringValue} onClick={() => trigger(document.fields.commentId.stringValue)} onKeyDown={(e) => e.key === 'Enter' && trigger(document.fields.commentId.stringValue)}>
               <p className="text-slate-500">
                 {document.fields.username.stringValue} [
                 {formatDistanceToNow(
@@ -132,9 +139,10 @@ export default function Post() {
                 )}
                 ]
               </p>
-              <div>{document.fields.content.stringValue}</div>
+              {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
+              <div dangerouslySetInnerHTML={{ __html: reformatUrls(document.fields.content.stringValue) }} />
               <div className="text-xs text-slate-500 justify-end flex">
-                <button type="button" disabled={replies.has(document.fields.commentId.stringValue) || document.fields.repliesCount.integerValue === '0'} onClick={() => trigger(document.fields.commentId.stringValue)}>[Load {document.fields.repliesCount.integerValue} replies]</button>
+                <button type="button">[Tap to load {document.fields.repliesCount.integerValue} replies]</button>
               </div>
 
               {/* Replies */}
@@ -150,7 +158,8 @@ export default function Post() {
                       )}
                       ]
                     </p>
-                    <div>{document.fields.reply.stringValue}</div>
+                    {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
+                    <div dangerouslySetInnerHTML={{ __html: reformatUrls(document.fields.reply.stringValue) }} />
                   </div>
                 )
               })}

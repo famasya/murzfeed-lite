@@ -6,6 +6,3 @@ html,
 body {
   @apply bg-white;
 }
-a {
-  @apply text-slate-700;
-}

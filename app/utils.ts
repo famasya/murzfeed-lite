@@ -9,3 +9,12 @@ export const firebaseFetcher = async <Response = object>(query: object) => {
   const response = await request.json() as Response;
   return response;
 }
+
+export const reformatUrls = (text: string) => {
+  const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+
+  return text.replace(urlRegex, (url) => {
+    const href = url.startsWith('www.') ? `https://${url}` : url;
+    return `<a href="${href}" target="_blank" class="underline">${url}</a>`;
+  });
+}
