@@ -1,4 +1,4 @@
-import type { LinksFunction } from "@remix-run/node";
+import type { HeadersFunction, LinksFunction } from "@remix-run/node";
 import {
   Link,
   Links,
@@ -24,6 +24,10 @@ export const links: LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
+
+export const headers: HeadersFunction = () => ({
+  'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
+});
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();
