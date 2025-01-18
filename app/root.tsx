@@ -1,12 +1,14 @@
+import type { LinksFunction } from "@remix-run/node";
 import {
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
 
+import { NuqsAdapter } from "nuqs/adapters/remix";
 import "./tailwind.css";
 
 export const links: LinksFunction = () => [
@@ -32,7 +34,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <div className="flex flex-col items-center w-full text-sm">
+          <div className="w-full max-w-[800px]">
+            <div className="bg-orange-700 text-white p-2 flex flex-row justify-between">
+              <Link to="/" className="text-white font-bold">
+                Murzfeed Lite
+              </Link>
+              <div className="space-x-2">
+                <Link to="/about" className="text-white">[about]</Link>
+                <Link to="https://github.com/famasya/murzfeed-lite" rel="noreferrer" target="_blank" className="text-white">[code]</Link>
+              </div>
+            </div>
+            <NuqsAdapter>
+              {children}
+            </NuqsAdapter>
+          </div>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
