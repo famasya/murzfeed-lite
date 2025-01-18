@@ -41,7 +41,7 @@ export default function Index() {
     if (index === 0) return ['first', sortBy]; // first page
     return [prev?.[prev?.length - 1].document?.fields.createdAt.timestampValue, sortBy];
   }
-  const { data: newPosts, isLoading, setSize, size } = useSWRInfinite(getKey, async ([ts, sortBy]) => {
+  const { data: newPosts, isLoading, isValidating, setSize, size } = useSWRInfinite(getKey, async ([ts, sortBy]) => {
     if (ts === 'first' && sortBy === "newest") return initialPosts; // fallback
     const orderBy = sortBy === "newest" ? "createdAt" : "latestCommentCreatedAt";
     return firebaseFetcher<Posts>({
@@ -90,7 +90,7 @@ export default function Index() {
       if (!post) return;
       return (
         <div key={post.name} className="my-2 bg-slate-50 p-2 border-[1px] border-slate-200 rounded-md">
-          <Link to={`/post/${post.fields.postId.stringValue}`} className="flex flex-row gap-2 items-center justify-between">
+          <Link rel="prefetch" to={`/post/${post.fields.postId.stringValue}`} className="flex flex-row gap-2 items-center justify-between">
             <div className="w-full">
               <p className="font-bold">{post.fields.title.stringValue}</p>
               <p className="mt-2">
@@ -113,7 +113,7 @@ export default function Index() {
     <div className="mt-4">
       <button type="button" className="w-full bg-slate-200 py-2" onClick={() => {
         setSize(size + 1)
-      }}>{isLoading ? "Loading..." : "Load more"}</button>
+      }}>{isLoading || isValidating ? "Loading..." : "Load more"}</button>
     </div>
   </div>
 }
