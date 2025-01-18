@@ -89,8 +89,6 @@ export const meta: MetaFunction = ({ data }: { data: unknown }) => {
   ];
 };
 
-export const config = { runtime: 'edge' };
-
 export default function Post() {
   const { comments, post } = useLoaderData<typeof loader>();
   const [replies, setReplies] = useState<Map<string, Replies>>(new Map())
