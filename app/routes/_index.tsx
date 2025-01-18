@@ -88,22 +88,23 @@ export default function Index() {
     </div>
     {posts.map(({ document: post }) => {
       if (!post) return;
-      const friendlyUrl = post.fields.title.stringValue.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+      const fields = post.fields;
+      const friendlyUrl = fields.title.stringValue.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
       return (
-        <div key={post.name} className="my-2 bg-slate-50 p-2 border-[1px] border-slate-200 rounded-md">
-          <Link rel="prefetch" to={`/post/${friendlyUrl}-${post.fields.postId.stringValue}`} className="flex flex-row gap-2 items-center justify-between">
+        <div key={post.name} className="my-2 bg-slate-50 p-2 border-[1px] border-slate-300 rounded-md">
+          <Link rel="prefetch" to={`/post/${friendlyUrl}-${fields.postId.stringValue}`} className="flex flex-row gap-2 items-center justify-between">
             <div className="w-full">
-              <p className="font-bold">{post.fields.title.stringValue}</p>
+              <p className="font-bold">{fields.title.stringValue}</p>
               <p className="mt-2">
-                {contentExcerpt(post.fields.content.stringValue)}
+                {contentExcerpt(fields.content.stringValue)}
               </p>
               <div className="mt-4 flex flex-row justify-between items-center">
                 <span className="text-blue-700 text-xs">
-                  [{+(post.fields.commentsCount.integerValue) + +(post.fields.repliesCount.integerValue)} comments]
-                  [{post.fields.pawCount.integerValue} paws]
-                  [{post.fields.scratchCount.integerValue} scratches]
+                  [{+(fields.commentsCount.integerValue) + +(fields.repliesCount.integerValue)} comments]
+                  [{fields.pawCount.integerValue} paws]
+                  [{fields.scratchCount.integerValue} scratches]
                 </span>
-                <span className="text-xs">[{post.fields.isAnonymous.booleanValue ? "Anonymous" : post.fields.username.stringValue}] {formatDistanceToNow(new Date(post.fields.createdAt.timestampValue), { addSuffix: true })}</span>
+                <span className="text-xs">{formatDistanceToNow(new Date(fields.createdAt.timestampValue), { addSuffix: true })}</span>
               </div>
             </div>
           </Link>

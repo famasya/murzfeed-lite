@@ -111,15 +111,23 @@ export default function Post() {
   if (!post.document) {
     return <div className="mt-2">Not found. U lost son?</div>;
   }
-
-  const img = post.document.fields.imageURL.arrayValue?.values?.[0].stringValue
+  const fields = post.document.fields;
+  const img = fields.imageURL.arrayValue?.values?.[0].stringValue
   return (
     <div className="mt-2 mb-8" id="top">
-      <h1 className="font-bold text-lg">{post.document.fields.title.stringValue}</h1>
+      <h1 className="font-bold text-lg">{fields.title.stringValue}</h1>
       <p className="my-1">{img && <img src={img} alt="" />}</p>
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
-      <p className="my-2" dangerouslySetInnerHTML={{ __html: reformatUrls(post.document.fields.content.stringValue) }} />
-      <p className="my-2"><Link className="text-red-600 font-semibold" to={`https://murzfeed.com/p/${post.document.fields.titleSlug.stringValue}`} target="_blank" rel="noreferrer">[Original post]</Link></p>
+      <p className="my-2" dangerouslySetInnerHTML={{ __html: reformatUrls(fields.content.stringValue) }} />
+      <div className="my-2 flex flex-row justify-between bg-orange-100 p-1 border-[1px] border-orange-200 rounded">
+        <div className="space-x-1">
+          <span>{fields.isAnonymous ? "Anonymous" : fields.username.stringValue} &bull;</span>
+          <span>{fields.pawCount.integerValue} paws &bull;</span>
+          <span>{fields.scratchCount.integerValue} scratches &bull;</span>
+          <span>{+(fields.commentsCount.integerValue) + +(fields.repliesCount.integerValue)} comments</span>
+        </div>
+        <Link className="text-orange-700 font-semibold" to={`https://murzfeed.com/p/${fields.titleSlug.stringValue}`} target="_blank" rel="noreferrer">[Original post]</Link>
+      </div>
 
       <div className="flex flex-col gap-2 pt-2 border-t-[1px]">
         {comments.map((comment) => {
@@ -127,41 +135,42 @@ export default function Post() {
             return <div key={comment.readTime}>No comment</div>;
           }
 
-          const { document } = comment;
-          const commentReplies = replies.get(document.fields.commentId.stringValue)
+          const { fields } = comment.document;
+          const commentReplies = replies.get(fields.commentId.stringValue)
           return (
-            <div className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2" key={document.fields.commentId.stringValue} onClick={() => trigger(document.fields.commentId.stringValue)} onKeyDown={(e) => e.key === 'Enter' && trigger(document.fields.commentId.stringValue)}>
+            <div className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2 border-slate-300" key={fields.commentId.stringValue} onClick={() => trigger(fields.commentId.stringValue)} onKeyDown={(e) => e.key === 'Enter' && trigger(fields.commentId.stringValue)}>
               <p className="text-slate-500">
-                {document.fields.isCommenterSetAnonymous.booleanValue ? 'Anonymous' : document.fields.username.stringValue} [
+                {fields.isCommenterSetAnonymous.booleanValue ? 'Anonymous' : fields.username.stringValue} [
                 {formatDistanceToNow(
-                  new Date(document.fields.createdAt.timestampValue),
+                  new Date(fields.createdAt.timestampValue),
                   { addSuffix: true },
                 )}
                 ]
               </p>
               {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
-              <div dangerouslySetInnerHTML={{ __html: reformatUrls(document.fields.content.stringValue) }} />
+              <div dangerouslySetInnerHTML={{ __html: reformatUrls(fields.content.stringValue) }} />
               <div className="text-xs text-slate-500 justify-end flex">
-                <button type="button">[Tap to load {document.fields.repliesCount.integerValue} replies]</button>
+                <button type="button">[Tap to load {fields.repliesCount.integerValue} replies]</button>
               </div>
 
               {/* Replies */}
               {commentReplies?.documents.map((document) => {
                 if (!document) return;
-                let commenter = document.fields.isReplierSetAnonymous.booleanValue ? 'Anonymous' : document.fields.commentUsername.stringValue
-                if (document.fields.isDelete.booleanValue) commenter = '[deleted]'
+                const { fields } = document
+                let commenter = fields.isReplierSetAnonymous.booleanValue ? 'Anonymous' : fields.commentUsername.stringValue
+                if (fields.isDelete.booleanValue) commenter = '[deleted]'
                 return (
-                  <div key={document.fields.replyId.stringValue} className="pl-4 border-l-4 border-slate-400 mb-2">
+                  <div key={fields.replyId.stringValue} className="pl-4 border-l-4 border-slate-400 mb-2">
                     <p className="text-slate-500">
                       {commenter} [
                       {formatDistanceToNow(
-                        new Date(document.fields.createdAt.timestampValue),
+                        new Date(fields.createdAt.timestampValue),
                         { addSuffix: true },
                       )}
                       ]
                     </p>
                     {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
-                    <div dangerouslySetInnerHTML={{ __html: reformatUrls(document.fields.isDelete.booleanValue ? '[deleted]' : document.fields.reply.stringValue) }} />
+                    <div dangerouslySetInnerHTML={{ __html: reformatUrls(fields.isDelete.booleanValue ? '[deleted]' : fields.reply.stringValue) }} />
                   </div>
                 )
               })}
@@ -169,7 +178,7 @@ export default function Post() {
           );
         })}
       </div>
-      <div className="text-center my-2"><a href="#top">Back to Top</a></div>
+      <div className="text-center my-2"><a href="#header">Back to Top</a></div>
     </div>
   );
 }

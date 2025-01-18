@@ -26,7 +26,7 @@ export const links: LinksFunction = () => [
 ];
 
 export const headers: HeadersFunction = () => ({
-  'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
+  'Cache-Control': 's-maxage=60, stale-while-revalidate=600',
 });
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -42,7 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <div className="flex flex-col items-center w-full text-sm">
           <div className="w-full max-w-[800px]">
-            <div className="bg-orange-700 text-white p-2 flex flex-row justify-between">
+            <div className="bg-orange-700 text-white p-2 flex flex-row justify-between" id="header">
               <Link rel="prefetch" to="/" className="text-white font-bold">
                 Murzfeed Lite
               </Link>
@@ -53,11 +53,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link to="https://github.com/famasya/murzfeed-lite" rel="noreferrer" target="_blank" className="text-white">[code]</Link>
               </div>
             </div>
-            <NuqsAdapter>
-              <div className="px-2">
+            <div className="px-2">
+              <NuqsAdapter>
                 {children}
-              </div>
-            </NuqsAdapter>
+              </NuqsAdapter>
+            </div>
           </div>
         </div>
         <ScrollRestoration />
