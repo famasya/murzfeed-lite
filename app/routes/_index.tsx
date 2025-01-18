@@ -103,7 +103,7 @@ export default function Index() {
                   [{post.fields.pawCount.integerValue} paws]
                   [{post.fields.scratchCount.integerValue} scratches]
                 </span>
-                <span className="text-xs">{formatDistanceToNow(new Date(post.fields.createdAt.timestampValue), { addSuffix: true })}</span>
+                <span className="text-xs">[{post.fields.isAnonymous.booleanValue ? "Anonymous" : post.fields.username.stringValue}] {formatDistanceToNow(new Date(post.fields.createdAt.timestampValue), { addSuffix: true })}</span>
               </div>
             </div>
           </Link>

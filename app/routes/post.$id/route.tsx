@@ -99,7 +99,7 @@ export default function Post() {
     const getReplies = await fetch(`https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents/comments/${arg}/replies`)
     const replies = (await getReplies.json()) as Replies;
     const orderedReplies = replies.documents.sort((a, b) => {
-      return new Date(b.fields.updatedAt.timestampValue).getTime() - new Date(a.fields.updatedAt.timestampValue).getTime()
+      return new Date(b.fields.createdAt.timestampValue).getTime() - new Date(a.fields.createdAt.timestampValue).getTime()
     })
     return { arg, replies: { documents: orderedReplies } }
   }, {
@@ -132,7 +132,7 @@ export default function Post() {
           return (
             <div className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2" key={document.fields.commentId.stringValue} onClick={() => trigger(document.fields.commentId.stringValue)} onKeyDown={(e) => e.key === 'Enter' && trigger(document.fields.commentId.stringValue)}>
               <p className="text-slate-500">
-                {document.fields.username.stringValue} [
+                {document.fields.isCommenterSetAnonymous.booleanValue ? 'Anonymous' : document.fields.username.stringValue} [
                 {formatDistanceToNow(
                   new Date(document.fields.createdAt.timestampValue),
                   { addSuffix: true },
@@ -148,10 +148,12 @@ export default function Post() {
               {/* Replies */}
               {commentReplies?.documents.map((document) => {
                 if (!document) return;
+                let commenter = document.fields.isReplierSetAnonymous.booleanValue ? 'Anonymous' : document.fields.commentUsername.stringValue
+                if (document.fields.isDelete.booleanValue) commenter = '[deleted]'
                 return (
                   <div key={document.fields.replyId.stringValue} className="pl-4 border-l-4 border-slate-400 mb-2">
                     <p className="text-slate-500">
-                      {document.fields.isReplierSetAnonymous ? 'Anonymous' : document.fields.commentUsername.stringValue} [
+                      {commenter} [
                       {formatDistanceToNow(
                         new Date(document.fields.createdAt.timestampValue),
                         { addSuffix: true },
@@ -159,7 +161,7 @@ export default function Post() {
                       ]
                     </p>
                     {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
-                    <div dangerouslySetInnerHTML={{ __html: reformatUrls(document.fields.reply.stringValue) }} />
+                    <div dangerouslySetInnerHTML={{ __html: reformatUrls(document.fields.isDelete.booleanValue ? '[deleted]' : document.fields.reply.stringValue) }} />
                   </div>
                 )
               })}
