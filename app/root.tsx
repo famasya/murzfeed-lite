@@ -54,7 +54,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <NuqsAdapter>
-              {children}
+              <div className="px-2">
+                {children}
+              </div>
             </NuqsAdapter>
           </div>
         </div>

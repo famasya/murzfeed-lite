@@ -104,7 +104,7 @@ export default function Post() {
   })
 
   if (!post.document) {
-    return <div className="mt-2 px-2">Not found. U lost?</div>;
+    return <div className="mt-2">Not found. U lost?</div>;
   }
   const img = post.document.fields.imageURL.arrayValue?.values?.[0].stringValue
   return (
