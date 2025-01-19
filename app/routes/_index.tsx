@@ -2,9 +2,9 @@ import type { MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { formatDistanceToNow } from "date-fns";
 import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import useSWRInfinite from "swr/infinite";
-import { firebaseFetcher } from "~/utils";
+import { firebaseFetcher, useDebounce } from "~/utils";
 import Loading from "./loading";
 import type { Posts } from "./posts";
 import { defaultQuery, searchQuery } from "./query";
@@ -29,7 +29,7 @@ export default function Index() {
     "sortBy": parseAsStringEnum(["newest", "trending"]).withDefault("newest"),
     "search": parseAsString.withDefault(""),
   });
-  const searchRef = useRef<HTMLInputElement>(null);
+  const [searchTerm, setSearchTerm] = useState(params.search)
 
   const getKey = (index: number, prev: Posts | null) => {
     if (index === 0) return ["first", params.sortBy, params.search]; // first page
@@ -60,7 +60,14 @@ export default function Index() {
     } else {
       modifiedQuery = searchQuery(search);
     }
-    return firebaseFetcher<Posts>(modifiedQuery)
+    // reorder results
+    const results = (await firebaseFetcher<Posts>(modifiedQuery))
+      .filter(doc => doc.document)
+      .sort((a, b) => {
+        if (!a.document || !b.document) return 0;
+        return new Date(b.document.fields.createdAt.timestampValue).getTime() - new Date(a.document.fields.createdAt.timestampValue).getTime()
+      })
+    return results
   })
   const posts = newPosts ? newPosts.flat() : [];
 
@@ -70,21 +77,29 @@ export default function Index() {
     return trimmed.length >= content.length ? text : `${text}...`
   }
 
-  const clear = () => {
-    if (searchRef.current) {
-      searchRef.current.value = "";
+  const debouncedSearch = useDebounce(searchTerm, searchTerm === "" ? 0 : 500);
+  useEffect(() => {
+    if (debouncedSearch !== params.search) {
+      setParams({ search: debouncedSearch, sortBy: "newest" });
     }
-  };
+  }, [params.search, debouncedSearch, setParams]);
 
   return <div className="mb-8">
     <div className="my-2 flex items-center gap-2 justify-between text-xs">
       <div>
-        <input ref={searchRef} className="px-2 border-2 border-slate-300 rounded mr-2" type="search" placeholder="Search (press enter)" onKeyDown={(e) => e.key === "Enter" && setParams({ search: e.currentTarget.value })} />
-        <button type="button" onClick={() => { setParams({ search: "" }); clear() }}>Reset</button>
+        <input onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchTerm}
+          className="px-2 border-2 border-slate-300 rounded mr-2"
+          type="search"
+          placeholder="Search (press enter)"
+        />
       </div>
       <div>
         <span className="mr-2">Order by</span>
-        <select className="px-2 border-2 rounded" onChange={(e) => setParams({ sortBy: e.target.value as "newest" | "trending" })}>
+        <select value={params.sortBy} className="px-2 border-2 rounded" onChange={(e) => {
+          setParams({ sortBy: e.target.value as "newest" | "trending", search: "" });
+          setSearchTerm("");
+        }}>
           <option value="newest">Newest</option>
           <option value="trending">Trending</option>
         </select>
