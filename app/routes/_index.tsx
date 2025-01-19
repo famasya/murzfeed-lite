@@ -124,26 +124,34 @@ export default function Index() {
           />
         </div>
         <div>
-          <select
-            value={params.sortBy}
-            className="px-2 border-2 rounded"
-            disabled={params.search.length > 0 || isLoading || isValidating}
-            onChange={(e) => {
-              setParams({
-                sortBy: e.target.value as
-                  | "newest"
-                  | "trending"
-                  | "last_activity",
-              });
-            }}
-          >
-            <option value="newest">Newest</option>
-            <option value="newest_all">Newest All Category</option>
-            <option value="trending">Trending</option>
-            <option value="last_activity">Last Activity</option>
-          </select>
+          {params.search.length < 1 ? (
+            <select
+              value={params.sortBy}
+              className="px-2 border-2 rounded"
+              disabled={params.search.length > 0 || isLoading || isValidating}
+              onChange={(e) => {
+                setParams({
+                  sortBy: e.target.value as
+                    | "newest"
+                    | "trending"
+                    | "last_activity",
+                });
+              }}
+            >
+              <option value="newest">Newest</option>
+              <option value="newest_all">Newest All Category</option>
+              <option value="trending">Trending</option>
+              <option value="last_activity">Last Activity</option>
+            </select>
+          ) : null}
         </div>
       </div>
+
+      {params.search.length > 0 ? (
+        <div>
+          <span>Showing last results for "{params.search}"</span> <button type="button" className="bg-slate-200 rounded px-2" onClick={() => setSearchTerm("")}>Reset</button>
+        </div>
+      ) : null}
 
       {posts.map(({ document: post }) => {
         if (!post) return;
@@ -188,12 +196,7 @@ export default function Index() {
       })}
 
       <div className="mt-4">
-        {params.search.length > 0 ? (
-          <div>
-            Showing last 10 results for{" "}
-            <span className="font-bold">{params.search}</span>
-          </div>
-        ) : (
+        {params.search.length < 1 ? (
           <button
             type="button"
             className="w-full bg-slate-200 py-2"
@@ -203,7 +206,7 @@ export default function Index() {
           >
             {isLoading || isValidating ? <Loading /> : "Load more"}
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   );

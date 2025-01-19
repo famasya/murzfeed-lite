@@ -169,7 +169,6 @@ export const searchQuery = (query: string) => ({
         direction: "ASCENDING"
       }
     ],
-    limit: 10,
     startAt: {
       before: true,
       values: [
