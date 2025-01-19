@@ -10,7 +10,7 @@ import type { CommentsResponse, Replies } from "./comments";
 const baseFetch =
   "https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents:runQuery";
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const postId = params.id?.split('-').pop()
+  const postId = params.id?.split("-").pop();
   const getPost = await fetch(baseFetch, {
     method: "POST",
     headers: {
@@ -33,7 +33,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
           field: {
             fieldPath: "createdAt",
           },
-          direction: "DESCENDING"
+          direction: "DESCENDING",
         },
         from: [
           {
@@ -67,7 +67,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
           field: {
             fieldPath: "createdAt",
           },
-          direction: "DESCENDING"
+          direction: "DESCENDING",
         },
         from: [
           {
@@ -93,40 +93,68 @@ export const meta: MetaFunction = ({ data }: { data: unknown }) => {
 
 export default function Post() {
   const { comments, post } = useLoaderData<typeof loader>();
-  const [replies, setReplies] = useState<Map<string, Replies>>(new Map())
+  const [replies, setReplies] = useState<Map<string, Replies>>(new Map());
 
-  const { trigger } = useSWRMutation("loadReplies", async (_, { arg }: { arg: string }) => {
-    const getReplies = await fetch(`https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents/comments/${arg}/replies`)
-    const replies = (await getReplies.json()) as Replies;
-    const orderedReplies = replies.documents.sort((a, b) => {
-      return new Date(b.fields.createdAt.timestampValue).getTime() - new Date(a.fields.createdAt.timestampValue).getTime()
-    })
-    return { arg, replies: { documents: orderedReplies } }
-  }, {
-    onSuccess: ({ arg, replies }) => {
-      setReplies(prev => new Map(prev).set(arg, replies))
-    }
-  })
+  const { trigger } = useSWRMutation(
+    "loadReplies",
+    async (_, { arg }: { arg: string }) => {
+      const getReplies = await fetch(
+        `https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents/comments/${arg}/replies`,
+      );
+      const replies = (await getReplies.json()) as Replies;
+      const orderedReplies = replies.documents.sort((a, b) => {
+        return (
+          new Date(b.fields.createdAt.timestampValue).getTime() -
+          new Date(a.fields.createdAt.timestampValue).getTime()
+        );
+      });
+      return { arg, replies: { documents: orderedReplies } };
+    },
+    {
+      onSuccess: ({ arg, replies }) => {
+        setReplies((prev) => new Map(prev).set(arg, replies));
+      },
+    },
+  );
 
   if (!post.document) {
     return <div className="mt-2">Not found. U lost son?</div>;
   }
   const fields = post.document.fields;
-  const img = fields.imageURL.arrayValue?.values?.[0].stringValue
+  const img = fields.imageURL.arrayValue?.values?.[0].stringValue;
   return (
     <div className="mt-2 mb-8" id="top">
       <h1 className="font-bold text-lg">{fields.title.stringValue}</h1>
       <p className="my-1">{img && <img src={img} alt="" />}</p>
-      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
-      <p className="my-2" dangerouslySetInnerHTML={{ __html: reformatUrls(fields.content.stringValue) }} />
+      <p
+        className="my-2"
+        /* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */
+        dangerouslySetInnerHTML={{
+          __html: reformatUrls(fields.content.stringValue),
+        }}
+      />
       <div className="my-2 flex flex-row justify-between bg-orange-100 p-1 border-[1px] border-orange-200 rounded">
         <div className="space-x-1">
-          <span>{fields.isAnonymous ? "Anonymous" : fields.username.stringValue} &bull;</span>
+          <span>
+            {fields.isAnonymous ? "Anonymous" : fields.username.stringValue}{" "}
+            &bull;
+          </span>
           <span>{fields.pawCount.integerValue} paws &bull;</span>
           <span>{fields.scratchCount.integerValue} scratches &bull;</span>
-          <span>{+(fields.commentsCount.integerValue) + +(fields.repliesCount?.integerValue || '0')} comments</span>
+          <span>
+            {+fields.commentsCount.integerValue +
+              +(fields.repliesCount?.integerValue || "0")}{" "}
+            comments
+          </span>
         </div>
-        <Link className="text-orange-700 font-semibold" to={`https://murzfeed.com/p/${fields.titleSlug.stringValue}`} target="_blank" rel="noreferrer">[OP]</Link>
+        <Link
+          className="text-orange-700 font-semibold"
+          to={`https://murzfeed.com/p/${fields.titleSlug.stringValue}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          [OP]
+        </Link>
       </div>
 
       <div className="flex flex-col gap-2 pt-2 border-t-[1px]">
@@ -136,31 +164,52 @@ export default function Post() {
           }
 
           const { fields } = comment.document;
-          const commentReplies = replies.get(fields.commentId.stringValue)
+          const commentReplies = replies.get(fields.commentId.stringValue);
           return (
-            <div className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2 border-slate-300" key={fields.commentId.stringValue} onClick={() => trigger(fields.commentId.stringValue)} onKeyDown={(e) => e.key === 'Enter' && trigger(fields.commentId.stringValue)}>
+            <div
+              className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2 border-slate-300"
+              key={fields.commentId.stringValue}
+              onClick={() => trigger(fields.commentId.stringValue)}
+              onKeyDown={(e) =>
+                e.key === "Enter" && trigger(fields.commentId.stringValue)
+              }
+            >
               <p className="text-slate-500">
-                {fields.isCommenterSetAnonymous?.booleanValue ? 'Anonymous' : fields.username.stringValue} [
+                {fields.isCommenterSetAnonymous?.booleanValue
+                  ? "Anonymous"
+                  : fields.username.stringValue}{" "}
+                [
                 {formatDistanceToNow(
                   new Date(fields.createdAt.timestampValue),
                   { addSuffix: true },
                 )}
                 ]
               </p>
-              {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
-              <div dangerouslySetInnerHTML={{ __html: reformatUrls(fields.content.stringValue) }} />
+              <div
+                /* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */
+                dangerouslySetInnerHTML={{
+                  __html: reformatUrls(fields.content.stringValue),
+                }}
+              />
               <div className="text-xs text-slate-500 justify-end flex">
-                <button type="button">[Tap to load {fields.repliesCount.integerValue} replies]</button>
+                <button type="button">
+                  [Tap to load {fields.repliesCount.integerValue} replies]
+                </button>
               </div>
 
               {/* Replies */}
               {commentReplies?.documents.map((document) => {
                 if (!document) return;
-                const { fields } = document
-                let commenter = fields.isReplierSetAnonymous.booleanValue ? 'Anonymous' : fields.replyCreatorUsername.stringValue
-                if (fields.isDelete.booleanValue) commenter = '[deleted]'
+                const { fields } = document;
+                let commenter = fields.isReplierSetAnonymous.booleanValue
+                  ? "Anonymous"
+                  : fields.replyCreatorUsername.stringValue;
+                if (fields.isDelete.booleanValue) commenter = "[deleted]";
                 return (
-                  <div key={fields.replyId.stringValue} className="pl-4 border-l-4 border-slate-400 mb-2">
+                  <div
+                    key={fields.replyId.stringValue}
+                    className="pl-4 border-l-4 border-slate-400 mb-2"
+                  >
                     <p className="text-slate-500">
                       {commenter} [
                       {formatDistanceToNow(
@@ -169,16 +218,26 @@ export default function Post() {
                       )}
                       ]
                     </p>
-                    {/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */}
-                    <div dangerouslySetInnerHTML={{ __html: reformatUrls(fields.isDelete.booleanValue ? '[deleted]' : fields.reply.stringValue) }} />
+                    <div
+                      /* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */
+                      dangerouslySetInnerHTML={{
+                        __html: reformatUrls(
+                          fields.isDelete.booleanValue
+                            ? "[deleted]"
+                            : fields.reply.stringValue,
+                        ),
+                      }}
+                    />
                   </div>
-                )
+                );
               })}
             </div>
           );
         })}
       </div>
-      <div className="text-center my-2"><a href="#header">Back to Top</a></div>
+      <div className="text-center my-2">
+        <a href="#header">Back to Top</a>
+      </div>
     </div>
   );
 }
