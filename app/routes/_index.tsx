@@ -13,24 +13,119 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async () => {
-  // initial data
-  const response = await firebaseFetcher<Posts>({
-    structuredQuery: {
-      from: [
-        {
-          collectionId: "posts"
-        }
-      ],
-      orderBy: {
+const query = {
+  structuredQuery: {
+    from: [
+      {
+        collectionId: "posts"
+      }
+    ],
+    where: {
+      compositeFilter: {
+        op: "AND",
+        filters: [
+          {
+            fieldFilter: {
+              field: {
+                fieldPath: "postCategory"
+              },
+              op: "ARRAY_CONTAINS_ANY",
+              value: {
+                arrayValue: {
+                  values: [
+                    {
+                      stringValue: "Company shutdown"
+                    },
+                    {
+                      stringValue: "New company/startup"
+                    },
+                    {
+                      stringValue: "WFA/WFO"
+                    },
+                    {
+                      stringValue: "Work Experience"
+                    },
+                    {
+                      stringValue: "Management info"
+                    },
+                    {
+                      stringValue: "Layoff"
+                    },
+                    {
+                      stringValue: "Employee benefit"
+                    },
+                    {
+                      stringValue: "Product"
+                    },
+                    {
+                      stringValue: "Acquisition/merger"
+                    },
+                    {
+                      stringValue: "New funding"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            fieldFilter: {
+              field: {
+                fieldPath: "published"
+              },
+              op: "EQUAL",
+              value: {
+                booleanValue: true
+              }
+            }
+          },
+          {
+            fieldFilter: {
+              field: {
+                fieldPath: "isDelete"
+              },
+              op: "EQUAL",
+              value: {
+                booleanValue: false
+              }
+            }
+          },
+          {
+            fieldFilter: {
+              field: {
+                fieldPath: "isNewsletter"
+              },
+              op: "EQUAL",
+              value: {
+                booleanValue: false
+              }
+            }
+          }
+        ]
+      }
+    },
+    orderBy: [
+      {
         field: {
           fieldPath: "createdAt"
         },
         direction: "DESCENDING"
       },
-      limit: 10
-    }
-  })
+      {
+        field: {
+          fieldPath: "__name__"
+        },
+        direction: "DESCENDING"
+      }
+    ],
+    limit: 10
+  },
+  parent: "projects/mfeed-c43b1/databases/(default)/documents"
+};
+
+export const loader = async () => {
+  // initial data
+  const response = await firebaseFetcher<Posts>(query);
   return response;
 };
 
@@ -44,20 +139,13 @@ export default function Index() {
   const { data: newPosts, isLoading, isValidating, setSize, size } = useSWRInfinite(getKey, async ([ts, sortBy]) => {
     if (ts === 'first' && sortBy === "newest") return initialPosts; // fallback
     const orderBy = sortBy === "newest" ? "createdAt" : "latestCommentCreatedAt";
+    const modifiedQuery = {
+      ...query,
+    }
+    modifiedQuery.structuredQuery.orderBy[0].field.fieldPath = orderBy;
     return firebaseFetcher<Posts>({
       structuredQuery: {
-        from: [
-          {
-            collectionId: "posts"
-          }
-        ],
-        orderBy: {
-          field: {
-            fieldPath: orderBy
-          },
-          direction: "DESCENDING"
-        },
-        limit: 10,
+        ...query.structuredQuery,
         ...(ts ? {
           startAt: {
             values: [
