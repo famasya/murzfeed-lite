@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { reformatUrls } from "~/utils";
-import type { PostResponse } from "../posts";
+import type { Posts } from "../posts";
 import type { CommentsResponse, Replies } from "./comments";
 
 const baseFetch =
@@ -43,7 +43,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
       },
     }),
   });
-  const post = (await getPost.json()) as PostResponse;
+  const post = (await getPost.json()) as Posts;
 
   const getComments = await fetch(baseFetch, {
     method: "POST",
@@ -124,9 +124,9 @@ export default function Post() {
           <span>{fields.isAnonymous ? "Anonymous" : fields.username.stringValue} &bull;</span>
           <span>{fields.pawCount.integerValue} paws &bull;</span>
           <span>{fields.scratchCount.integerValue} scratches &bull;</span>
-          <span>{+(fields.commentsCount.integerValue) + +(fields.repliesCount.integerValue)} comments</span>
+          <span>{+(fields.commentsCount.integerValue) + +(fields.repliesCount?.integerValue || '0')} comments</span>
         </div>
-        <Link className="text-orange-700 font-semibold" to={`https://murzfeed.com/p/${fields.titleSlug.stringValue}`} target="_blank" rel="noreferrer">[Original post]</Link>
+        <Link className="text-orange-700 font-semibold" to={`https://murzfeed.com/p/${fields.titleSlug.stringValue}`} target="_blank" rel="noreferrer">[OP]</Link>
       </div>
 
       <div className="flex flex-col gap-2 pt-2 border-t-[1px]">
@@ -140,7 +140,7 @@ export default function Post() {
           return (
             <div className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2 border-slate-300" key={fields.commentId.stringValue} onClick={() => trigger(fields.commentId.stringValue)} onKeyDown={(e) => e.key === 'Enter' && trigger(fields.commentId.stringValue)}>
               <p className="text-slate-500">
-                {fields.isCommenterSetAnonymous.booleanValue ? 'Anonymous' : fields.username.stringValue} [
+                {fields.isCommenterSetAnonymous?.booleanValue ? 'Anonymous' : fields.username.stringValue} [
                 {formatDistanceToNow(
                   new Date(fields.createdAt.timestampValue),
                   { addSuffix: true },
@@ -157,7 +157,7 @@ export default function Post() {
               {commentReplies?.documents.map((document) => {
                 if (!document) return;
                 const { fields } = document
-                let commenter = fields.isReplierSetAnonymous.booleanValue ? 'Anonymous' : fields.commentUsername.stringValue
+                let commenter = fields.isReplierSetAnonymous.booleanValue ? 'Anonymous' : fields.replyCreatorUsername.stringValue
                 if (fields.isDelete.booleanValue) commenter = '[deleted]'
                 return (
                   <div key={fields.replyId.stringValue} className="pl-4 border-l-4 border-slate-400 mb-2">

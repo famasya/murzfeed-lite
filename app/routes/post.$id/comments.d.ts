@@ -60,7 +60,7 @@ export type CommentsResponse = Array<{
       titleSlug: {
         stringValue: string
       }
-      isCommenterSetAnonymous: {
+      isCommenterSetAnonymous?: {
         booleanValue: boolean
       }
       isCommenterPostStarter: {

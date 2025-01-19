@@ -6,10 +6,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useNavigation,
+  useLocation,
+  useNavigate,
+  useNavigation
 } from "@remix-run/react";
 
 import { NuqsAdapter } from "nuqs/adapters/remix";
+import Loading from "./routes/loading";
 import "./tailwind.css";
 
 export const links: LinksFunction = () => [
@@ -31,6 +34,8 @@ export const headers: HeadersFunction = () => ({
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const navigation = useNavigation();
+  const location = useLocation();
+  const navigate = useNavigate();
   return (
     <html lang="en">
       <head>
@@ -43,12 +48,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col items-center w-full text-sm">
           <div className="w-full max-w-[800px]">
             <div className="bg-orange-700 text-white p-2 flex flex-row justify-between" id="header">
-              <Link rel="prefetch" to="/" className="text-white font-bold">
+              <Link rel="prefetch" to="/" onClick={(e) => {
+                if (location.pathname.includes("post")) {
+                  e.preventDefault();
+                  navigate(-1);
+                }
+              }} className="text-white font-bold">
                 Murzfeed Lite
               </Link>
               <div className="space-x-2 flex flex-row items-center">
                 {navigation.state !== "idle" ?
-                  <div className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white" /> : null}
+                  <Loading /> : null}
                 <Link rel="prefetch" to="/about" className="text-white">[about]</Link>
                 <a href="/rss" className="text-white">[rss]</a>
                 <Link to="https://github.com/famasya/murzfeed-lite" rel="noreferrer" target="_blank" className="text-white">[code]</Link>
