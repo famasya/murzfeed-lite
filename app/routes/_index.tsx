@@ -26,7 +26,7 @@ export const loader = async () => {
 export default function Index() {
   const initialPosts = useLoaderData<typeof loader>();
   const [params, setParams] = useQueryStates({
-    "sortBy": parseAsStringEnum(["newest", "trending"]).withDefault("newest"),
+    "sortBy": parseAsStringEnum(["newest", "trending", "last_activity"]).withDefault("newest"),
     "search": parseAsString.withDefault(""),
   });
   const [searchTerm, setSearchTerm] = useState(params.search)
@@ -42,8 +42,12 @@ export default function Index() {
     // biome-ignore lint/suspicious/noExplicitAny: initial value
     let modifiedQuery: any;
     if (!search || search === "") {
-      modifiedQuery = defaultQuery;
-      const orderBy = sortBy === "newest" ? "createdAt" : "latestCommentCreatedAt";
+      modifiedQuery = structuredClone(defaultQuery); // clone
+      let orderBy = sortBy === "newest" ? "createdAt" : "latestCommentCreatedAt";
+      if (sortBy === "last_activity") {
+        modifiedQuery.structuredQuery.where.compositeFilter.filters[0] = undefined; // remove category filter
+        orderBy = "latestCommentCreatedAt";
+      }
       modifiedQuery.structuredQuery.orderBy[0].field.fieldPath = orderBy;
       modifiedQuery = {
         structuredQuery: {
@@ -96,12 +100,12 @@ export default function Index() {
       </div>
       <div>
         <span className="mr-2">Order by</span>
-        <select value={params.sortBy} className="px-2 border-2 rounded" onChange={(e) => {
-          setParams({ sortBy: e.target.value as "newest" | "trending", search: "" });
-          setSearchTerm("");
+        <select value={params.sortBy} className="px-2 border-2 rounded" disabled={params.search.length > 0} onChange={(e) => {
+          setParams({ sortBy: e.target.value as "newest" | "trending" | "last_activity" });
         }}>
           <option value="newest">Newest</option>
           <option value="trending">Trending</option>
+          <option value="last_activity">Last Activity</option>
         </select>
       </div>
     </div>
