@@ -26,7 +26,7 @@ export const loader = async () => {
 export default function Index() {
   const initialPosts = useLoaderData<typeof loader>();
   const [params, setParams] = useQueryStates({
-    "sortBy": parseAsStringEnum(["newest", "trending", "last_activity"]).withDefault("newest"),
+    "sortBy": parseAsStringEnum(["newest", "newest_all", "trending", "last_activity"]).withDefault("newest"),
     "search": parseAsString.withDefault(""),
   });
   const [searchTerm, setSearchTerm] = useState(params.search)
@@ -43,11 +43,14 @@ export default function Index() {
     let modifiedQuery: any;
     if (!search || search === "") {
       modifiedQuery = structuredClone(defaultQuery); // clone
-      let orderBy = sortBy === "newest" ? "createdAt" : "latestCommentCreatedAt";
-      if (sortBy === "last_activity") {
+      if (sortBy === "last_activity" || sortBy === "newest_all") {
         modifiedQuery.structuredQuery.where.compositeFilter.filters[0] = undefined; // remove category filter
+      }
+      let orderBy = "createdAt";
+      if (sortBy === "last_activity" || sortBy === "newest_all") {
         orderBy = "latestCommentCreatedAt";
       }
+
       modifiedQuery.structuredQuery.orderBy[0].field.fieldPath = orderBy;
       modifiedQuery = {
         structuredQuery: {
@@ -92,6 +95,7 @@ export default function Index() {
     <div className="my-2 flex items-center gap-2 justify-between text-xs">
       <div>
         <input onChange={(e) => setSearchTerm(e.target.value)}
+          disabled={isLoading || isValidating}
           value={searchTerm}
           className="px-2 border-2 border-slate-300 rounded mr-2"
           type="search"
@@ -100,10 +104,16 @@ export default function Index() {
       </div>
       <div>
         <span className="mr-2">Order by</span>
-        <select value={params.sortBy} className="px-2 border-2 rounded" disabled={params.search.length > 0} onChange={(e) => {
-          setParams({ sortBy: e.target.value as "newest" | "trending" | "last_activity" });
-        }}>
+        <select
+          value={params.sortBy}
+          className="px-2 border-2 rounded"
+          disabled={params.search.length > 0 || isLoading || isValidating}
+          onChange={(e) => {
+            setParams({ sortBy: e.target.value as "newest" | "trending" | "last_activity" });
+          }
+          }>
           <option value="newest">Newest</option>
+          <option value="newest_all">Newest All Category</option>
           <option value="trending">Trending</option>
           <option value="last_activity">Last Activity</option>
         </select>
