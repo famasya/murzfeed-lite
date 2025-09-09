@@ -64,7 +64,7 @@ export interface PostDocument {
 }
 
 // Simplified Post type for easier usage
-export interface Post {
+export interface MurzfeedPost {
 	id: string;
 	title: string;
 	content: string;

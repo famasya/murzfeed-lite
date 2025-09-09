@@ -4,8 +4,9 @@ import { formatDistanceToNow } from "date-fns";
 import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 import { useEffect, useState } from "react";
 import useSWRInfinite from "swr/infinite";
-import type { Post } from "~/types";
-import { firebaseFetcher, useDebounce } from "~/utils";
+import { firebaseFetcher } from "~/lib/firebase";
+import type { MurzfeedPost } from "~/types";
+import { useDebounce } from "~/utils";
 import Loading from "./loading";
 
 export const meta: MetaFunction = () => {
@@ -39,7 +40,7 @@ export default function Index() {
 	});
 	const [searchTerm, setSearchTerm] = useState(params.search);
 
-	const getKey = (index: number, prev: Post[] | null) => {
+	const getKey = (index: number, prev: MurzfeedPost[] | null) => {
 		if (index === 0) return ["first", params.sortBy, params.search]; // first page
 		const lastPost = prev?.[prev?.length - 1];
 		return [
@@ -85,7 +86,7 @@ export default function Index() {
 
 		return results;
 	});
-	const posts = newPosts ? newPosts.flat() : [];
+	const posts = newPosts ? newPosts.flat() : initialPosts;
 
 	const contentExcerpt = (content: string) => {
 		const trimmed = content.split(" ").slice(0, 20).join(" ");

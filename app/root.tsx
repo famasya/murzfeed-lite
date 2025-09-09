@@ -68,7 +68,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 									}}
 									className="text-white font-bold"
 								>
-									Murzfeed + fomo.id Lite
+									Murzfeed Lite
 								</Link>
 								<Link rel="prefetch" to="/fomo" className="text-white">
 									[fomo]
