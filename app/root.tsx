@@ -12,6 +12,7 @@ import {
 } from "@remix-run/react";
 
 import { NuqsAdapter } from "nuqs/adapters/remix";
+import { useId } from "react";
 import Loading from "./routes/loading";
 import "./tailwind.css";
 
@@ -49,7 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					<div className="w-full max-w-[800px]">
 						<div
 							className="bg-orange-700 text-white p-2 flex flex-row justify-between"
-							id="header"
+							id={useId()}
 						>
 							<Link
 								rel="prefetch"
@@ -66,7 +67,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 								}}
 								className="text-white font-bold"
 							>
-								Murzfeed Lite
+								Murzfeed + fomo.id Lite
 							</Link>
 							<div className="space-x-2 flex flex-row items-center">
 								{navigation.state !== "idle" ? <Loading /> : null}

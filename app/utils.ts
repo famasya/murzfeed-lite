@@ -8,7 +8,7 @@ import {
 	type QueryConstraint,
 	startAfter,
 	Timestamp,
-	where
+	where,
 } from "@firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "~/lib/firebase";
@@ -52,7 +52,7 @@ export const firebaseFetcher = async (
 			orderByField = "createdAt",
 			orderDirection = "desc",
 			limitCount = 10,
-			startAfterTimestamp,
+			startAfterValues,
 			searchTerm,
 		} = options;
 
@@ -81,23 +81,25 @@ export const firebaseFetcher = async (
 			);
 		}
 
-		// Add search constraint
+		// Add ordering first, then pagination
 		if (searchTerm) {
 			constraints.push(
 				where("titleSlug", ">=", searchTerm),
 				where("titleSlug", "<=", `${searchTerm}~`),
 			);
 			constraints.push(orderBy("titleSlug", "asc"));
+			constraints.push(orderBy("__name__", "asc"));
 		} else {
 			constraints.push(orderBy(orderByField, orderDirection));
+			constraints.push(orderBy("__name__", orderDirection));
+
+			// Add pagination after ordering - use timestamp and id for proper cursor
+			if (startAfterValues) {
+				const timestamp = Timestamp.fromDate(startAfterValues.timestamp);
+				constraints.push(startAfter(timestamp, startAfterValues.id));
+			}
 		}
 
-		// Add pagination
-		if (startAfterTimestamp && !searchTerm) {
-			constraints.push(startAfter(Timestamp.fromDate(startAfterTimestamp)));
-		}
-
-		constraints.push(orderBy("__name__", orderDirection));
 		constraints.push(limit(limitCount));
 
 		const postsQuery = query(collection(db, "posts"), ...constraints);

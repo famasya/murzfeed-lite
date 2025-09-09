@@ -4,7 +4,8 @@ import { formatDistanceToNow } from "date-fns";
 import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 import { useEffect, useState } from "react";
 import useSWRInfinite from "swr/infinite";
-import { firebaseFetcher, useDebounce, type Post } from "~/utils";
+import type { Post } from "~/types";
+import { firebaseFetcher, useDebounce } from "~/utils";
 import Loading from "./loading";
 
 export const meta: MetaFunction = () => {
@@ -40,8 +41,10 @@ export default function Index() {
 
 	const getKey = (index: number, prev: Post[] | null) => {
 		if (index === 0) return ["first", params.sortBy, params.search]; // first page
+		const lastPost = prev?.[prev?.length - 1];
 		return [
-			prev?.[prev?.length - 1]?.createdAt?.toISOString(),
+			lastPost?.createdAt?.toISOString(),
+			lastPost?.id,
 			params.sortBy,
 			params.search,
 		];
@@ -52,7 +55,7 @@ export default function Index() {
 		isValidating,
 		setSize,
 		size,
-	} = useSWRInfinite(getKey, async ([ts, sortBy, search]) => {
+	} = useSWRInfinite(getKey, async ([ts, id, sortBy, search]) => {
 		if (ts === "first" && sortBy === "newest" && search === "")
 			return initialPosts; // fallback
 
@@ -63,15 +66,20 @@ export default function Index() {
 				? "latestCommentCreatedAt"
 				: "createdAt";
 
-		const startAfterTimestamp =
-			ts === "first" ? undefined : new Date(ts as string);
+		const startAfterValues =
+			ts === "first"
+				? undefined
+				: {
+						timestamp: new Date(ts as string),
+						id: id as string,
+					};
 
 		const results = await firebaseFetcher({
 			includeAllCategories,
 			orderByField,
 			orderDirection: "desc",
 			limitCount: 10,
-			startAfterTimestamp,
+			startAfterValues,
 			searchTerm: search || undefined,
 		});
 
