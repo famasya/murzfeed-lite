@@ -1,38 +1,137 @@
+import {
+	collection,
+	type DocumentData,
+	getDocs,
+	limit,
+	orderBy,
+	query,
+	type QueryConstraint,
+	startAfter,
+	Timestamp,
+	where
+} from "@firebase/firestore";
 import { useEffect, useState } from "react";
+import { db } from "~/lib/firebase";
+import type { Post, PostsQueryOptions } from "./types";
 
-export const firebaseFetcher = async <Response = object>(query: object) => {
-  const request = await fetch("https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents:runQuery", {
-    method: "post",
-    headers: {
-      "content-type": "application/json"
-    },
-    body: JSON.stringify(query)
-  })
-  const response = await request.json() as Response;
-  return response;
+// Post document type based on Firestore structure
+// Convert Firestore document to simplified Post type
+function convertDocumentToPost(doc: DocumentData): Post {
+	const data = doc.data();
+	return {
+		id: doc.id,
+		title: data.title || "",
+		content: data.content || "",
+		postId: data.postId || "",
+		username: data.username || "",
+		uid: data.uid || "",
+		createdAt: data.createdAt?.toDate() || new Date(),
+		latestCommentCreatedAt: data.latestCommentCreatedAt?.toDate() || new Date(),
+		published: data.published || false,
+		isDelete: data.isDelete || false,
+		isNewsletter: data.isNewsletter || false,
+		postCategory: data.postCategory || [],
+		pawCount: Number.parseInt(data.pawCount, 10) || 0,
+		scratchCount: Number.parseInt(data.scratchCount, 10) || 0,
+		commentsCount: Number.parseInt(data.commentsCount, 10) || 0,
+		repliesCount: Number.parseInt(data.repliesCount, 10) || 0,
+		viewCount: Number.parseInt(data.viewCount, 10) || 0,
+		titleSlug: data.titleSlug || "",
+		imageURL: data.imageURL || [],
+		userDetail: data.userDetail || [],
+		reference: data.reference || "",
+	};
 }
+
+export const firebaseFetcher = async (
+	options: PostsQueryOptions = {},
+): Promise<Post[]> => {
+	try {
+		const {
+			includeAllCategories = false,
+			orderByField = "createdAt",
+			orderDirection = "desc",
+			limitCount = 10,
+			startAfterTimestamp,
+			searchTerm,
+		} = options;
+
+		const constraints: QueryConstraint[] = [
+			where("published", "==", true),
+			where("isDelete", "==", false),
+			where("isNewsletter", "==", false),
+		];
+
+		// Add category filter if not including all categories
+		if (!includeAllCategories) {
+			const allowedCategories = [
+				"Company shutdown",
+				"New company/startup",
+				"WFA/WFO",
+				"Work Experience",
+				"Management info",
+				"Layoff",
+				"Employee benefit",
+				"Product",
+				"Acquisition/merger",
+				"New funding",
+			];
+			constraints.push(
+				where("postCategory", "array-contains-any", allowedCategories),
+			);
+		}
+
+		// Add search constraint
+		if (searchTerm) {
+			constraints.push(
+				where("titleSlug", ">=", searchTerm),
+				where("titleSlug", "<=", `${searchTerm}~`),
+			);
+			constraints.push(orderBy("titleSlug", "asc"));
+		} else {
+			constraints.push(orderBy(orderByField, orderDirection));
+		}
+
+		// Add pagination
+		if (startAfterTimestamp && !searchTerm) {
+			constraints.push(startAfter(Timestamp.fromDate(startAfterTimestamp)));
+		}
+
+		constraints.push(orderBy("__name__", orderDirection));
+		constraints.push(limit(limitCount));
+
+		const postsQuery = query(collection(db, "posts"), ...constraints);
+		const snapshot = await getDocs(postsQuery);
+
+		return snapshot.docs.map(convertDocumentToPost);
+	} catch (error) {
+		console.error("Firebase fetcher error:", error);
+		throw error;
+	}
+};
 
 export const reformatUrls = (text: string) => {
-  const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+	const urlRegex =
+		/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
 
-  return text.replace(urlRegex, (url) => {
-    const href = url.startsWith('www.') ? `https://${url}` : url;
-    return `<a href="${href}" target="_blank" class="underline">${url}</a>`;
-  });
-}
+	return text.replace(urlRegex, (url) => {
+		const href = url.startsWith("www.") ? `https://${url}` : url;
+		return `<a href="${href}" target="_blank" class="underline">${url}</a>`;
+	});
+};
 
 export const useDebounce = (value: string, delay = 500) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+	const [debouncedValue, setDebouncedValue] = useState(value);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			setDebouncedValue(value);
+		}, delay);
 
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [value, delay]);
+		return () => {
+			clearTimeout(timeoutId);
+		};
+	}, [value, delay]);
 
-  return debouncedValue;
+	return debouncedValue;
 };

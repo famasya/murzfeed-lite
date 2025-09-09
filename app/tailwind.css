@@ -2,5 +2,5 @@
 
 html,
 body {
-  @apply bg-white;
+	@apply bg-white;
 }

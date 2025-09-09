@@ -8,7 +8,7 @@ import {
 	ScrollRestoration,
 	useLocation,
 	useNavigate,
-	useNavigation
+	useNavigation,
 } from "@remix-run/react";
 
 import { NuqsAdapter } from "nuqs/adapters/remix";
@@ -29,7 +29,7 @@ export const links: LinksFunction = () => [
 ];
 
 export const headers: HeadersFunction = () => ({
-	'Cache-Control': 's-maxage=60, stale-while-revalidate=600',
+	"Cache-Control": "s-maxage=60, stale-while-revalidate=600",
 });
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -47,28 +47,47 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<body>
 				<div className="flex flex-col items-center w-full text-sm">
 					<div className="w-full max-w-[800px]">
-						<div className="bg-orange-700 text-white p-2 flex flex-row justify-between" id="header">
-							<Link rel="prefetch" to="/" onClick={(e) => {
-								const isHistoryAvailable = window.history.state.idx !== 0
-								if (location.pathname.includes("post") && isHistoryAvailable) {
-									e.preventDefault();
-									navigate(-1);
-								}
-							}} className="text-white font-bold">
+						<div
+							className="bg-orange-700 text-white p-2 flex flex-row justify-between"
+							id="header"
+						>
+							<Link
+								rel="prefetch"
+								to="/"
+								onClick={(e) => {
+									const isHistoryAvailable = window.history.state.idx !== 0;
+									if (
+										location.pathname.includes("post") &&
+										isHistoryAvailable
+									) {
+										e.preventDefault();
+										navigate(-1);
+									}
+								}}
+								className="text-white font-bold"
+							>
 								Murzfeed Lite
 							</Link>
 							<div className="space-x-2 flex flex-row items-center">
-								{navigation.state !== "idle" ?
-									<Loading /> : null}
-								<Link rel="prefetch" to="/about" className="text-white">[about]</Link>
-								<a href="/rss" className="text-white">[rss]</a>
-								<Link to="https://github.com/famasya/murzfeed-lite" rel="noreferrer" target="_blank" className="text-white">[code]</Link>
+								{navigation.state !== "idle" ? <Loading /> : null}
+								<Link rel="prefetch" to="/about" className="text-white">
+									[about]
+								</Link>
+								<a href="/rss" className="text-white">
+									[rss]
+								</a>
+								<Link
+									to="https://github.com/famasya/murzfeed-lite"
+									rel="noreferrer"
+									target="_blank"
+									className="text-white"
+								>
+									[code]
+								</Link>
 							</div>
 						</div>
 						<div className="px-2">
-							<NuqsAdapter>
-								{children}
-							</NuqsAdapter>
+							<NuqsAdapter>{children}</NuqsAdapter>
 						</div>
 					</div>
 				</div>
