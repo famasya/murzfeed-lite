@@ -1,5 +1,5 @@
 import type { HeadersFunction, LoaderFunction } from "@remix-run/node";
-import { firebaseFetcher } from "~/utils";
+import { firebaseFetcher } from "~/lib/firebase";
 
 type RssEntry = {
 	title: string;
