@@ -53,7 +53,7 @@ const generateRss = ({
 export const loader: LoaderFunction = async () => {
 	const posts = await firebaseFetcher({
 		includeAllCategories: true,
-		orderByField: "latestCommentCreatedAt",
+		orderByField: "createdAt",
 		orderDirection: "desc",
 		limitCount: 50,
 	});

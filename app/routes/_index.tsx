@@ -70,9 +70,9 @@ export default function Index() {
 			ts === "first"
 				? undefined
 				: {
-						timestamp: new Date(ts as string),
-						id: id as string,
-					};
+					timestamp: new Date(ts as string),
+					id: id as string,
+				};
 
 		const results = await firebaseFetcher({
 			includeAllCategories,

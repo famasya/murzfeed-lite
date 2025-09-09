@@ -20,6 +20,7 @@ type PostResponse = Array<{
 			commentsCount: { integerValue: string };
 			repliesCount?: { integerValue: string };
 			titleSlug: { stringValue: string };
+			createdAt: { timestampValue: string };
 			imageURL: {
 				arrayValue: {
 					values?: Array<{ stringValue: string }>;
@@ -146,7 +147,7 @@ export default function Post() {
 	const fields = post.document.fields;
 	const img = fields.imageURL.arrayValue?.values?.[0].stringValue;
 	return (
-		<div className="mt-2 mb-8" id="top">
+		<div className="mt-2 mb-8">
 			<h1 className="font-bold text-lg">{fields.title.stringValue}</h1>
 			<p className="my-1">{img && <img src={img} alt="" />}</p>
 			<p
@@ -167,7 +168,13 @@ export default function Post() {
 					<span>
 						{+fields.commentsCount.integerValue +
 							+(fields.repliesCount?.integerValue || "0")}{" "}
-						comments
+						comments &bull;
+					</span>
+					<span>
+						{formatDistanceToNow(
+							new Date(fields.createdAt.timestampValue),
+							{ addSuffix: true }
+						)}
 					</span>
 				</div>
 				<Link
@@ -189,6 +196,7 @@ export default function Post() {
 					const { fields } = comment.document;
 					const commentReplies = replies.get(fields.commentId.stringValue);
 					return (
+						// biome-ignore lint/a11y/noStaticElementInteractions: comment section
 						<div
 							className="bg-gradient-to-l from-white to-slate-100 border-[1px] rounded-md p-2 border-slate-300"
 							key={fields.commentId.stringValue}
@@ -222,7 +230,7 @@ export default function Post() {
 
 							{/* Replies */}
 							{commentReplies?.documents.map((document) => {
-								if (!document) return;
+								if (!document) return undefined;
 								const { fields } = document;
 								let commenter = fields.isReplierSetAnonymous.booleanValue
 									? "Anonymous"

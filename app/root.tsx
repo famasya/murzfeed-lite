@@ -52,23 +52,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
 							className="bg-orange-700 text-white p-2 flex flex-row justify-between"
 							id={useId()}
 						>
-							<Link
-								rel="prefetch"
-								to="/"
-								onClick={(e) => {
-									const isHistoryAvailable = window.history.state.idx !== 0;
-									if (
-										location.pathname.includes("post") &&
-										isHistoryAvailable
-									) {
-										e.preventDefault();
-										navigate(-1);
-									}
-								}}
-								className="text-white font-bold"
-							>
-								Murzfeed + fomo.id Lite
-							</Link>
+							<div className="flex flex-row items-center space-x-2">
+								<Link
+									rel="prefetch"
+									to="/"
+									onClick={(e) => {
+										const isHistoryAvailable = window.history.state.idx !== 0;
+										if (
+											location.pathname.includes("post") &&
+											isHistoryAvailable
+										) {
+											e.preventDefault();
+											navigate(-1);
+										}
+									}}
+									className="text-white font-bold"
+								>
+									Murzfeed + fomo.id Lite
+								</Link>
+								<Link rel="prefetch" to="/fomo" className="text-white">
+									[fomo]
+								</Link>
+							</div>
 							<div className="space-x-2 flex flex-row items-center">
 								{navigation.state !== "idle" ? <Loading /> : null}
 								<Link rel="prefetch" to="/about" className="text-white">
