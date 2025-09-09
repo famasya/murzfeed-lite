@@ -102,3 +102,262 @@ export interface PostsQueryOptions {
 	};
 	searchTerm?: string;
 }
+
+export interface FomoPostsResponse {
+	data: Array<{
+		voteFlag?: number;
+		notificationEnabled?: boolean;
+		bookmarked?: boolean;
+		bookmarkActivityId: unknown;
+		headerType?: string;
+		inner: {
+			imageUrl?: string;
+			tax?: string;
+			promoted?: boolean;
+			channelId: unknown;
+			channel?: {
+				curated: boolean;
+				label: string;
+				name: string;
+				value: unknown;
+				id: unknown;
+				imageUrl: string;
+				userCount: number;
+				color: string;
+			};
+			pollOptions?: Array<unknown>;
+			content?: string;
+			title?: string;
+			marketingConsented?: boolean;
+			type: string;
+			edited?: boolean;
+			activityId: number;
+			modifiedTime?: string;
+			banned: boolean;
+			deleted: boolean;
+			numberOfLikes?: number;
+			numberOfComments?: number;
+			numberOfDislikes?: number;
+			creationTime?: string;
+			user?: {
+				id: number;
+				username?: string;
+				companyId: number;
+				companyName: string;
+				profilePictureUrl?: string;
+				reputationImageUrl?: string;
+				subscription: string;
+				jobPostActivityId: unknown;
+				reputationLevel: number;
+				gender?: string;
+				needReverification: boolean;
+				talentPostActivityId: unknown;
+			};
+			linkingUrl?: string;
+			ctaCopy?: string;
+			aspectRatioMultiplier?: number;
+			jobTitle?: {
+				value: string;
+				id: number;
+			};
+			yearsOfExperience?: number;
+			roleLevel: unknown;
+			baseMonthlySalaryInRupiah?: number;
+			annualBonusInRupiah: unknown;
+			annualMarketPriceEquityInRupiah: unknown;
+			allowances?: Array<unknown>;
+			numberOfViews?: number;
+			numberOfClicks?: number;
+			buttonCta?: string;
+			targetRoute?: string;
+			targetRouteParams?: {
+				company: {
+					name: string;
+					id: number;
+					totalSalaries: number;
+					totalReviews: number;
+					imageUrl: string;
+					ratings: number;
+				};
+			};
+		};
+		liked?: boolean;
+		disliked?: boolean;
+		blurred?: boolean;
+	}>;
+}
+
+export interface FomoCommentsResponse {
+	data: Array<{
+		dislikedChildCommentIds: Array<unknown>;
+		likedChildCommentIds: Array<unknown>;
+		blockedUserIds: Array<unknown>;
+		userBlockerIds: Array<unknown>;
+		inner: {
+			value: string;
+			parentActivityId: number;
+			comments: Array<{
+				value: string;
+				parentActivityId: number;
+				comments: Array<unknown>;
+				rootActivityId: number;
+				type: string;
+				edited: boolean;
+				activityId: number;
+				modifiedTime: unknown;
+				banned: boolean;
+				deleted: boolean;
+				numberOfLikes: number;
+				numberOfComments: number;
+				numberOfDislikes: number;
+				creationTime: string;
+				user: {
+					id: number;
+					username: string;
+					companyId: number;
+					companyName: string;
+					profilePictureUrl?: string;
+					reputationImageUrl: string;
+					subscription: string;
+					jobPostActivityId: unknown;
+					reputationLevel: number;
+					gender: string;
+					needReverification: boolean;
+					talentPostActivityId: unknown;
+				};
+			}>;
+			rootActivityId: number;
+			type: string;
+			edited: boolean;
+			activityId: number;
+			modifiedTime: unknown;
+			banned: boolean;
+			deleted: boolean;
+			numberOfLikes: number;
+			numberOfComments: number;
+			numberOfDislikes: number;
+			creationTime: string;
+			user: {
+				id: number;
+				username: string;
+				companyId: number;
+				companyName: string;
+				profilePictureUrl: string;
+				reputationImageUrl: string;
+				subscription: string;
+				jobPostActivityId: unknown;
+				reputationLevel: number;
+				gender: string;
+				needReverification: boolean;
+				talentPostActivityId: unknown;
+			};
+		};
+		liked: boolean;
+		disliked: boolean;
+	}>;
+	meta: {
+		relatedCompanies: Array<{
+			name: string;
+			id: number;
+			totalSalaries: number;
+			totalReviews: number;
+			imageUrl: string;
+			ratings: number;
+		}>;
+	};
+}
+
+export interface FomoSearchResults {
+	data: Array<{
+		key?: number;
+		banned?: boolean;
+		deleted?: boolean;
+		surveyQuestionIdToVoteFlag?: unknown;
+		voteFlag?: number;
+		notificationEnabled?: boolean;
+		bookmarked?: boolean;
+		bookmarkActivityId: unknown;
+		headerType?: string;
+		inner: {
+			imageUrl?: string;
+			tax?: string;
+			promoted?: boolean;
+			channelId?: number;
+			channel?: {
+				curated: boolean;
+				label: string;
+				name: string;
+				value?: number;
+				id?: number;
+				imageUrl: string;
+				userCount: number;
+				color: string;
+				creator?: {
+					id: number;
+					username: string;
+					companyId: number;
+					companyName: string;
+					profilePictureUrl: string;
+					reputationImageUrl: string;
+					subscription: string;
+					jobPostActivityId: unknown;
+					reputationLevel: number;
+					gender: string;
+					needReverification: boolean;
+					talentPostActivityId: unknown;
+				};
+				description?: string;
+			};
+			pollOptions?: Array<{
+				flag: number;
+				text: string;
+				votes: number;
+			}>;
+			content: string;
+			title: string;
+			marketingConsented?: boolean;
+			type: string;
+			edited?: boolean;
+			activityId: number;
+			modifiedTime?: string;
+			banned: boolean;
+			deleted: boolean;
+			numberOfLikes?: number;
+			numberOfComments?: number;
+			numberOfDislikes?: number;
+			creationTime?: string;
+			user?: {
+				id: number;
+				username?: string;
+				companyId: number;
+				companyName: string;
+				profilePictureUrl: string;
+				reputationImageUrl?: string;
+				subscription: string;
+				jobPostActivityId: unknown;
+				reputationLevel: number;
+				gender?: string;
+				needReverification: boolean;
+				talentPostActivityId: unknown;
+			};
+			linkingUrl?: string;
+			ctaCopy?: string;
+			aspectRatioMultiplier?: number;
+			buttonCta?: string;
+			targetRoute?: string;
+			targetRouteParams?: {
+				company: {
+					name: string;
+					id: number;
+					totalSalaries: number;
+					totalReviews: number;
+					imageUrl: string;
+					ratings: number;
+				};
+			};
+		};
+		liked?: boolean;
+		disliked?: boolean;
+	}>;
+	meta: unknown;
+}

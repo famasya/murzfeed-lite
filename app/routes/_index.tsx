@@ -41,7 +41,7 @@ export default function Index() {
 	const [searchTerm, setSearchTerm] = useState(params.search);
 
 	const getKey = (index: number, prev: MurzfeedPost[] | null) => {
-		if (index === 0) return ["first", params.sortBy, params.search]; // first page
+		if (index === 0) return ["first", null, params.sortBy, params.search]; // first page
 		const lastPost = prev?.[prev?.length - 1];
 		return [
 			lastPost?.createdAt?.toISOString(),
@@ -57,6 +57,7 @@ export default function Index() {
 		setSize,
 		size,
 	} = useSWRInfinite(getKey, async ([ts, id, sortBy, search]) => {
+		console.log(1, ts, id, sortBy, search)
 		if (ts === "first" && sortBy === "newest" && search === "")
 			return initialPosts; // fallback
 
@@ -74,6 +75,7 @@ export default function Index() {
 					timestamp: new Date(ts as string),
 					id: id as string,
 				};
+
 
 		const results = await firebaseFetcher({
 			includeAllCategories,

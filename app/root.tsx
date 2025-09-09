@@ -70,9 +70,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 								>
 									Murzfeed Lite
 								</Link>
-								<Link rel="prefetch" to="/fomo" className="text-white">
-									[fomo]
-								</Link>
 							</div>
 							<div className="space-x-2 flex flex-row items-center">
 								{navigation.state !== "idle" ? <Loading /> : null}
