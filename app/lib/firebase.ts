@@ -89,22 +89,13 @@ export const firebaseFetcher = async (
 		}
 
 		// Add ordering first, then pagination
-		if (searchTerm) {
-			constraints.push(
-				where("titleSlug", ">=", searchTerm),
-				where("titleSlug", "<=", `${searchTerm}~`),
-			);
-			constraints.push(orderBy("titleSlug", "asc"));
-			constraints.push(orderBy("__name__", "asc"));
-		} else {
-			constraints.push(orderBy(orderByField, orderDirection));
-			constraints.push(orderBy("__name__", orderDirection));
+		constraints.push(orderBy(orderByField, orderDirection));
+		constraints.push(orderBy("__name__", orderDirection));
 
-			// Add pagination after ordering - use timestamp and id for proper cursor
-			if (startAfterValues) {
-				const timestamp = Timestamp.fromDate(startAfterValues.timestamp);
-				constraints.push(startAfter(timestamp, startAfterValues.id));
-			}
+		// Add pagination after ordering - use timestamp and id for proper cursor
+		if (startAfterValues && !searchTerm) {
+			const timestamp = Timestamp.fromDate(startAfterValues.timestamp);
+			constraints.push(startAfter(timestamp, startAfterValues.id));
 		}
 
 		constraints.push(limit(limitCount));
@@ -112,7 +103,19 @@ export const firebaseFetcher = async (
 		const postsQuery = query(collection(db, "posts"), ...constraints);
 		const snapshot = await getDocs(postsQuery);
 
-		return snapshot.docs.map(convertDocumentToPost);
+		let posts = snapshot.docs.map(convertDocumentToPost);
+
+		// Client-side search filtering to avoid complex Firebase index requirements
+		if (searchTerm) {
+			const searchLower = searchTerm.toLowerCase();
+			posts = posts.filter(post =>
+				post.title.toLowerCase().includes(searchLower) ||
+				post.content.toLowerCase().includes(searchLower) ||
+				post.titleSlug.toLowerCase().includes(searchLower)
+			);
+		}
+
+		return posts;
 	} catch (error) {
 		console.error("Firebase fetcher error:", error);
 		throw error;

@@ -12,11 +12,11 @@ const fomoClient = ky.create({
   prefixUrl: "https://fomo.azurewebsites.net",
 });
 
-export const fomoGetPosts = (
+export const fomoGetPosts = async (
   sort: "recent" | "trending" = "recent",
   page: number = 1,
 ) => {
-  const response = fomoClient.get<FomoPostsResponse>("feed", {
+  const response = await fomoClient.get<FomoPostsResponse>("feed", {
     searchParams: {
       sortMode: sort.toUpperCase(),
       limit: 10,
@@ -24,7 +24,11 @@ export const fomoGetPosts = (
     },
   });
 
-  return response.json();
+  // filter out INTERNAL_PROMO, PROMO
+  const posts = await response.json();
+  const filteredPosts = posts.data.filter((post) => !["INTERNAL_PROMO", "PROMO", "SALARY"].includes(post.inner.type));
+
+  return { data: filteredPosts };
 };
 
 export const fomoGetComments = (postId: string, page: number = 1) => {

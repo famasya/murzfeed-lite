@@ -27,15 +27,16 @@ export const loader = async () => {
 	return response;
 };
 
+const sortOptions = [
+	{ value: "newest", label: "Newest" },
+	{ value: "newest_all", label: "Newest All" },
+	{ value: "trending", label: "Trending" },
+	{ value: "last_activity", label: "Last Activity" },
+];
 export default function Index() {
 	const initialPosts = useLoaderData<typeof loader>();
 	const [params, setParams] = useQueryStates({
-		sortBy: parseAsStringEnum([
-			"newest",
-			"newest_all",
-			"trending",
-			"last_activity",
-		]).withDefault("newest"),
+		sortBy: parseAsStringEnum(sortOptions.map((o) => o.value)).withDefault("newest"),
 		search: parseAsString.withDefault(""),
 	});
 	const [searchTerm, setSearchTerm] = useState(params.search);
@@ -57,7 +58,6 @@ export default function Index() {
 		setSize,
 		size,
 	} = useSWRInfinite(getKey, async ([ts, id, sortBy, search]) => {
-		console.log(1, ts, id, sortBy, search)
 		if (ts === "first" && sortBy === "newest" && search === "")
 			return initialPosts; // fallback
 
@@ -76,14 +76,13 @@ export default function Index() {
 					id: id as string,
 				};
 
-
 		const results = await firebaseFetcher({
 			includeAllCategories,
 			orderByField,
 			orderDirection: "desc",
 			limitCount: 10,
 			startAfterValues,
-			searchTerm: search || undefined,
+			searchTerm: search && search.length > 0 ? search : undefined,
 		});
 
 		return results;
@@ -116,27 +115,16 @@ export default function Index() {
 						placeholder="Search (press enter)"
 					/>
 				</div>
-				<div>
-					{params.search.length < 1 ? (
-						<select
-							value={params.sortBy}
-							className="px-2 border-2 rounded"
-							disabled={params.search.length > 0 || isLoading || isValidating}
-							onChange={(e) => {
-								setParams({
-									sortBy: e.target.value as
-										| "newest"
-										| "trending"
-										| "last_activity",
-								});
-							}}
+				<div className="flex gap-2">
+					{sortOptions.map((option) => (
+						<Link
+							key={option.value}
+							to={`/?sortBy=${option.value}`}
+							className={params.sortBy === option.value ? "font-bold underline" : ""}
 						>
-							<option value="newest">Newest</option>
-							<option value="newest_all">Newest All Category</option>
-							<option value="trending">Trending</option>
-							<option value="last_activity">Last Activity</option>
-						</select>
-					) : null}
+							{option.label}
+						</Link>
+					))}
 				</div>
 			</div>
 
@@ -164,7 +152,7 @@ export default function Index() {
 					>
 						<Link
 							rel="prefetch"
-							to={`/post/${friendlyUrl}-${post.postId}`}
+							to={`/post/murz/${friendlyUrl}-${post.postId}`}
 							className="flex flex-row gap-2 items-center justify-between"
 						>
 							<div className="w-full">
