@@ -96,28 +96,33 @@ export default function FomoPost() {
 					__html: reformatUrls(inner.content || ""),
 				}}
 			/>
-			<div className="my-2 flex flex-row justify-between bg-blue-100 p-1 border-[1px] border-blue-200 rounded">
-				<div className="space-x-1">
-					<div>{inner.user?.username || "Anonymous"} [{inner.user.companyName}]</div>
-					<div className="flex space-x-1">
-						<span>{inner.numberOfLikes || 0} 👍 </span>
-						<span>{inner.numberOfDislikes || 0} 👎 </span>
-						<span>{inner.numberOfComments || 0} 💬 </span>
-						<span>
-							{formatDistanceToNow(new Date(inner.creationTime || ""), {
-								addSuffix: true,
-							})}
-						</span>
+			<div className="my-2 w-full bg-blue-100 p-1 border-[1px] border-blue-200 rounded">
+				<div className="flex flex-row justify-between mb-1">
+					<div className="space-x-1">
+						<div>{inner.user?.username || "Anonymous"} [{inner.user.companyName}]</div>
+					</div>
+					<Link
+						className="text-blue-700 font-semibold"
+						to={`https://fomo.id/activity/${inner.activityId}`}
+						target="_blank"
+						rel="noreferrer"
+					>
+						[OP]
+					</Link>
+				</div>
+				<div className="flex justify-between flex-row w-full">
+					<div className="space-x-2">
+						<span>[{inner.numberOfLikes || 0} upvotes]</span>
+						<span>[{inner.numberOfDislikes || 0} downvotes]</span>
+						<span>[{inner.numberOfComments || 0} comments]</span>
+					</div>
+					<div>
+						{formatDistanceToNow(new Date(inner.creationTime || ""), {
+							addSuffix: true,
+						})}
 					</div>
 				</div>
-				<Link
-					className="text-blue-700 font-semibold"
-					to={`https://fomo.id/activity/${inner.activityId}`}
-					target="_blank"
-					rel="noreferrer"
-				>
-					[OP]
-				</Link>
+
 			</div>
 
 			<div className="flex flex-col gap-2 pt-2 border-t-[1px]">
