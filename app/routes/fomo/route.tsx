@@ -173,27 +173,18 @@ export default function Fomo() {
 										<p className="mt-2">{contentExcerpt(postData.content)}</p>
 									)}
 									<div className="mt-4 flex flex-row justify-between items-center">
-										<div className="flex items-center gap-2">
-											{postData.user && (
-												<span className="text-blue-700 text-xs">
-													@{postData.user.username} at{" "}
-													{postData.user.companyName}
-												</span>
-											)}
-											{postData.channel && (
-												<span className="text-green-700 text-xs bg-green-100 px-1 rounded">
-													{postData.channel.name}
-												</span>
-											)}
-										</div>
 										<div className="flex items-center gap-4 text-xs">
 											<span className="text-blue-700">
-												👍 {postData.numberOfLikes || 0} 👎{" "}
-												{postData.numberOfDislikes || 0}
+												👍 {postData.numberOfLikes || 0}
+											</span>
+											<span className="text-blue-700">
+												👎 {postData.numberOfDislikes || 0}
 											</span>
 											<span className="text-blue-700">
 												💬 {postData.numberOfComments || 0}
 											</span>
+										</div>
+										<div>
 											{postData.creationTime && (
 												<span className="text-xs">
 													{formatDistanceToNow(

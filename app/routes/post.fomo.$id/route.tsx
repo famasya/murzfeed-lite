@@ -89,8 +89,8 @@ export default function FomoPost() {
 		<div className="mt-2 mb-8">
 			<h1 className="font-bold text-lg">{inner.title}</h1>
 			<p className="my-1">{img && <img src={img} alt="" />}</p>
-			<p
-				className="my-2"
+			<pre
+				className="whitespace-pre-wrap font-sans"
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: ignored
 				dangerouslySetInnerHTML={{
 					__html: reformatUrls(inner.content || ""),
@@ -98,15 +98,17 @@ export default function FomoPost() {
 			/>
 			<div className="my-2 flex flex-row justify-between bg-blue-100 p-1 border-[1px] border-blue-200 rounded">
 				<div className="space-x-1">
-					<span>{inner.user?.username || "Anonymous"} &bull;</span>
-					<span>{inner.numberOfLikes || 0} likes &bull;</span>
-					<span>{inner.numberOfDislikes || 0} dislikes &bull;</span>
-					<span>{inner.numberOfComments || 0} comments &bull;</span>
-					<span>
-						{formatDistanceToNow(new Date(inner.creationTime || ""), {
-							addSuffix: true,
-						})}
-					</span>
+					<div>{inner.user?.username || "Anonymous"} [{inner.user.companyName}]</div>
+					<div className="flex space-x-1">
+						<span>{inner.numberOfLikes || 0} 👍 </span>
+						<span>{inner.numberOfDislikes || 0} 👎 </span>
+						<span>{inner.numberOfComments || 0} 💬 </span>
+						<span>
+							{formatDistanceToNow(new Date(inner.creationTime || ""), {
+								addSuffix: true,
+							})}
+						</span>
+					</div>
 				</div>
 				<Link
 					className="text-blue-700 font-semibold"
@@ -211,10 +213,6 @@ export default function FomoPost() {
 					</button>
 				</div>
 			)}
-
-			<div className="text-center my-2">
-				<a href="#header">Back to Top</a>
-			</div>
 		</div>
 	);
 }

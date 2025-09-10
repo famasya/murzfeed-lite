@@ -151,8 +151,8 @@ export default function Post() {
 		<div className="mt-2 mb-8">
 			<h1 className="font-bold text-lg">{fields.title.stringValue}</h1>
 			<p className="my-1">{img && <img src={img} alt="" />}</p>
-			<p
-				className="my-2"
+			<pre
+				className="whitespace-pre-wrap font-sans"
 				/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */
 				dangerouslySetInnerHTML={{
 					__html: reformatUrls(fields.content.stringValue),
@@ -270,9 +270,6 @@ export default function Post() {
 						</div>
 					);
 				})}
-			</div>
-			<div className="text-center my-2">
-				<a href="#header">Back to Top</a>
 			</div>
 		</div>
 	);

@@ -12,7 +12,6 @@ import {
 } from "@remix-run/react";
 
 import { NuqsAdapter } from "nuqs/adapters/remix";
-import { useId } from "react";
 import Loading from "./routes/loading";
 import "./tailwind.css";
 
@@ -50,7 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					<div className="w-full max-w-[800px]">
 						<div
 							className="bg-orange-700 text-white p-2 flex flex-row justify-between"
-							id={useId()}
+							id={"header"}
 						>
 							<div className="flex flex-row items-center space-x-2">
 								<Link
@@ -88,12 +87,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
 									target="_blank"
 									className="text-white"
 								>
-									[code]
+									[telegram channel]
 								</Link>
 							</div>
 						</div>
 						<div className="px-2">
 							<NuqsAdapter>{children}</NuqsAdapter>
+						</div>
+						<div className="mx-auto text-center pb-2 flex flex-row justify-between">
+							<div>
+								<a href="#header" className="text-center my-2 bg-slate-50 p-2 border-[1px] border-slate-300 rounded">Back to Top</a>
+							</div>
+							<Link
+								to="https://github.com/famasya/murzfeed-lite"
+								rel="noreferrer"
+								target="_blank"
+								className="mb-2"
+							>
+								[code]
+							</Link>
 						</div>
 					</div>
 				</div>
