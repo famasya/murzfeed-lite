@@ -1,5 +1,5 @@
 import type { HeadersFunction, LoaderFunction } from "@remix-run/node";
-import { firebaseFetcher } from "~/lib/firebase";
+import { getMurzfeedPosts } from "~/lib/firebase";
 
 type RssEntry = {
 	title: string;
@@ -51,16 +51,11 @@ const generateRss = ({
 };
 
 export const loader: LoaderFunction = async () => {
-	const posts = await firebaseFetcher({
-		includeAllCategories: true,
-		orderByField: "createdAt",
-		orderDirection: "desc",
-		limitCount: 50,
-	});
+	const posts = await getMurzfeedPosts({ ts: "first", id: "", sortBy: "newest", search: "" });
 
 	const feed = generateRss({
-		title: "Murz Lite",
-		description: "Murz Lite - Murzfeed w/ HN Style",
+		title: "Murzfeed Lite",
+		description: "Murzfeed Lite - Murzfeed w/ HN Style",
 		link: "https://murzlite.vercel.app",
 		entries: posts.map((post) => {
 			const friendlyUrl = post.title

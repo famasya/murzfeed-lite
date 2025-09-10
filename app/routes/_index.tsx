@@ -1,10 +1,10 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { formatDistanceToNow } from "date-fns";
 import { parseAsString, parseAsStringEnum, useQueryStates } from "nuqs";
 import { useEffect, useState } from "react";
 import useSWRInfinite from "swr/infinite";
-import { firebaseFetcher } from "~/lib/firebase";
+import { getMurzfeedPosts } from "~/lib/firebase";
 import type { MurzfeedPost } from "~/types";
 import { useDebounce } from "~/utils";
 import Loading from "./loading";
@@ -16,40 +16,40 @@ export const meta: MetaFunction = () => {
 	];
 };
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+	const params = new URL(request.url).searchParams;
+	const sortBy = params.get("sortBy") || "trending";
+	const search = params.get("search") || "";
 	// initial data
-	const response = await firebaseFetcher({
-		includeAllCategories: false,
-		orderByField: "createdAt",
-		orderDirection: "desc",
-		limitCount: 10,
-	});
+	const response = await getMurzfeedPosts({ ts: "first", id: "", sortBy, search });
 	return response;
 };
 
 const sortOptions = [
 	{ value: "newest", label: "Newest" },
-	{ value: "newest_all", label: "Newest All" },
 	{ value: "trending", label: "Trending" },
 	{ value: "last_activity", label: "Last Activity" },
 ];
 export default function Index() {
 	const initialPosts = useLoaderData<typeof loader>();
 	const [params, setParams] = useQueryStates({
-		sortBy: parseAsStringEnum(sortOptions.map((o) => o.value)).withDefault("newest"),
+		sortBy: parseAsStringEnum(sortOptions.map((o) => o.value)).withDefault(
+			"trending",
+		),
 		search: parseAsString.withDefault(""),
 	});
 	const [searchTerm, setSearchTerm] = useState(params.search);
 
 	const getKey = (index: number, prev: MurzfeedPost[] | null) => {
-		if (index === 0) return ["first", null, params.sortBy, params.search]; // first page
+		if (index === 0) return { ts: "first", id: "", sortBy: params.sortBy, search: params.search }; // first page
 		const lastPost = prev?.[prev?.length - 1];
-		return [
-			lastPost?.createdAt?.toISOString(),
-			lastPost?.id,
-			params.sortBy,
-			params.search,
-		];
+		if (!lastPost) return { ts: "first", id: "", sortBy: params.sortBy, search: params.search };
+		return {
+			ts: lastPost.createdAt.toISOString(),
+			id: lastPost.id,
+			sortBy: params.sortBy,
+			search: params.search,
+		};
 	};
 	const {
 		data: newPosts,
@@ -57,36 +57,10 @@ export default function Index() {
 		isValidating,
 		setSize,
 		size,
-	} = useSWRInfinite(getKey, async ([ts, id, sortBy, search]) => {
-		if (ts === "first" && sortBy === "newest" && search === "")
-			return initialPosts; // fallback
-
-		const includeAllCategories =
-			sortBy === "last_activity" || sortBy === "newest_all";
-		const orderByField =
-			sortBy === "last_activity" || sortBy === "newest_all"
-				? "latestCommentCreatedAt"
-				: "createdAt";
-
-		const startAfterValues =
-			ts === "first"
-				? undefined
-				: {
-					timestamp: new Date(ts as string),
-					id: id as string,
-				};
-
-		const results = await firebaseFetcher({
-			includeAllCategories,
-			orderByField,
-			orderDirection: "desc",
-			limitCount: 10,
-			startAfterValues,
-			searchTerm: search && search.length > 0 ? search : undefined,
-		});
-
-		return results;
+	} = useSWRInfinite(getKey, async ({ ts, id, sortBy, search }) => {
+		return await getMurzfeedPosts({ ts, id, sortBy, search });
 	});
+
 	const posts = newPosts ? newPosts.flat() : initialPosts;
 
 	const contentExcerpt = (content: string) => {
@@ -120,7 +94,9 @@ export default function Index() {
 						<Link
 							key={option.value}
 							to={`/?sortBy=${option.value}`}
-							className={params.sortBy === option.value ? "font-bold underline" : ""}
+							className={
+								params.sortBy === option.value ? "font-bold underline" : ""
+							}
 						>
 							{option.label}
 						</Link>

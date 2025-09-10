@@ -121,3 +121,45 @@ export const firebaseFetcher = async (
 		throw error;
 	}
 };
+
+type Props = {
+	ts: string;
+	id: string;
+	sortBy: string;
+	search?: string;
+}
+export const getMurzfeedPosts = async ({ ts, id, sortBy, search }: Props) => {
+	let includeAllCategories = true;
+	let orderByField: "createdAt" | "latestCommentCreatedAt" = "createdAt";
+
+	if (sortBy === "newest") {
+		includeAllCategories = true;
+	}
+
+	if (sortBy === "last_activity") {
+		orderByField = "latestCommentCreatedAt";
+	}
+
+	if (sortBy === "trending") {
+		includeAllCategories = false;
+	}
+
+	const startAfterValues =
+		ts === "first"
+			? undefined
+			: {
+				timestamp: new Date(ts),
+				id: id,
+			};
+
+	const results = await firebaseFetcher({
+		includeAllCategories,
+		orderByField,
+		orderDirection: "desc",
+		limitCount: 10,
+		startAfterValues,
+		searchTerm: search && search.length > 0 ? search : undefined,
+	});
+
+	return results;
+}
