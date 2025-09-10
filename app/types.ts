@@ -361,3 +361,61 @@ export interface FomoSearchResults {
 	}>;
 	meta: unknown;
 }
+
+export interface FomoSinglePost {
+	key: number
+	banned: boolean
+	deleted: boolean
+	surveyQuestionIdToVoteFlag: unknown
+	voteFlag: number
+	notificationEnabled: boolean
+	bookmarked: boolean
+	bookmarkActivityId: unknown
+	headerType: string
+	inner: {
+		imageUrl: unknown
+		tax: string
+		promoted: boolean
+		channelId: unknown
+		channel: {
+			curated: boolean
+			label: string
+			name: string
+			value: unknown
+			id: unknown
+			imageUrl: string
+			userCount: number
+			color: string
+		}
+		pollOptions: Array<unknown>
+		content: string
+		title: string
+		marketingConsented: boolean
+		type: string
+		edited: boolean
+		activityId: number
+		modifiedTime: string
+		banned: boolean
+		deleted: boolean
+		numberOfLikes: number
+		numberOfComments: number
+		numberOfDislikes: number
+		creationTime: string
+		user: {
+			id: number
+			username: string
+			companyId: number
+			companyName: string
+			profilePictureUrl: string
+			reputationImageUrl: string
+			subscription: string
+			jobPostActivityId: unknown
+			reputationLevel: number
+			gender: string
+			needReverification: boolean
+			talentPostActivityId: unknown
+		}
+	}
+	liked: boolean
+	disliked: boolean
+}

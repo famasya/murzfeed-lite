@@ -3,6 +3,7 @@ import type {
   FomoCommentsResponse,
   FomoPostsResponse,
   FomoSearchResults,
+  FomoSinglePost,
 } from "~/types";
 
 const fomoClient = ky.create({
@@ -29,6 +30,15 @@ export const fomoGetPosts = async (
   const filteredPosts = posts.data.filter((post) => !["INTERNAL_PROMO", "PROMO", "SALARY"].includes(post.inner.type));
 
   return { data: filteredPosts };
+};
+
+export const fomoGetPost = (activityId: string) => {
+  const response = fomoClient.post<FomoSinglePost>(`activity`, {
+    json: {
+      activityId
+    }
+  });
+  return response.json();
 };
 
 export const fomoGetComments = (postId: string, page: number = 1) => {
