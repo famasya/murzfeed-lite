@@ -126,6 +126,7 @@ export default function Post() {
 				`https://firestore.googleapis.com/v1/projects/mfeed-c43b1/databases/(default)/documents/comments/${arg}/replies`,
 			);
 			const replies = (await getReplies.json()) as Replies;
+			if (!replies.documents) return { arg, replies: { documents: [] } };
 			const orderedReplies = replies.documents.sort((a, b) => {
 				return (
 					new Date(b.fields.createdAt.timestampValue).getTime() -
@@ -171,10 +172,9 @@ export default function Post() {
 						comments &bull;
 					</span>
 					<span>
-						{formatDistanceToNow(
-							new Date(fields.createdAt.timestampValue),
-							{ addSuffix: true }
-						)}
+						{formatDistanceToNow(new Date(fields.createdAt.timestampValue), {
+							addSuffix: true,
+						})}
 					</span>
 				</div>
 				<Link
@@ -224,12 +224,16 @@ export default function Post() {
 							/>
 							<div className="text-xs text-slate-500 justify-end flex">
 								<button type="button">
-									[Tap to load {fields.repliesCount.integerValue} replies]
+									{fields.repliesCount.integerValue !== "0" && (
+										<>
+											[Tap to load {fields.repliesCount.integerValue} replies]
+										</>
+									)}
 								</button>
 							</div>
 
 							{/* Replies */}
-							{commentReplies?.documents.map((document) => {
+							{commentReplies?.documents?.map((document) => {
 								if (!document) return undefined;
 								const { fields } = document;
 								let commenter = fields.isReplierSetAnonymous.booleanValue
@@ -249,7 +253,8 @@ export default function Post() {
 											)}
 											]
 										</p>
-										<div
+										<pre
+											className="whitespace-pre-wrap font-sans"
 											/* biome-ignore lint/security/noDangerouslySetInnerHtml: parsed */
 											dangerouslySetInnerHTML={{
 												__html: reformatUrls(

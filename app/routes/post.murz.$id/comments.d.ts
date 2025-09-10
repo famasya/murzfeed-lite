@@ -83,7 +83,7 @@ export type CommentsResponse = Array<{
 }>;
 
 export type Replies = {
-	documents: Array<{
+	documents?: Array<{
 		name: string;
 		fields: {
 			commentContent: {

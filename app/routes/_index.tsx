@@ -11,17 +11,22 @@ import Loading from "./loading";
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: "Murzfeed Lite" },
+		{ title: "Murzfeed + fomo Lite" },
 		{ name: "description", content: "Murzfeed w/ HN style" },
 	];
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const params = new URL(request.url).searchParams;
-	const sortBy = params.get("sortBy") || "trending";
+	const sortBy = params.get("sortBy") || "newest";
 	const search = params.get("search") || "";
 	// initial data
-	const response = await getMurzfeedPosts({ ts: "first", id: "", sortBy, search });
+	const response = await getMurzfeedPosts({
+		ts: "first",
+		id: "",
+		sortBy,
+		search,
+	});
 	return response;
 };
 
@@ -34,16 +39,28 @@ export default function Index() {
 	const initialPosts = useLoaderData<typeof loader>();
 	const [params, setParams] = useQueryStates({
 		sortBy: parseAsStringEnum(sortOptions.map((o) => o.value)).withDefault(
-			"trending",
+			"newest",
 		),
 		search: parseAsString.withDefault(""),
 	});
 	const [searchTerm, setSearchTerm] = useState(params.search);
 
 	const getKey = (index: number, prev: MurzfeedPost[] | null) => {
-		if (index === 0) return { ts: "first", id: "", sortBy: params.sortBy, search: params.search }; // first page
+		if (index === 0)
+			return {
+				ts: "first",
+				id: "",
+				sortBy: params.sortBy,
+				search: params.search,
+			}; // first page
 		const lastPost = prev?.[prev?.length - 1];
-		if (!lastPost) return { ts: "first", id: "", sortBy: params.sortBy, search: params.search };
+		if (!lastPost)
+			return {
+				ts: "first",
+				id: "",
+				sortBy: params.sortBy,
+				search: params.search,
+			};
 		return {
 			ts: lastPost.createdAt.toISOString(),
 			id: lastPost.id,
@@ -86,7 +103,7 @@ export default function Index() {
 						value={searchTerm}
 						className="px-2 border-2 border-slate-300 rounded mr-2"
 						type="search"
-						placeholder="Search (press enter)"
+						placeholder="Search"
 					/>
 				</div>
 				<div className="flex gap-2">

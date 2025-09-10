@@ -108,10 +108,11 @@ export const firebaseFetcher = async (
 		// Client-side search filtering to avoid complex Firebase index requirements
 		if (searchTerm) {
 			const searchLower = searchTerm.toLowerCase();
-			posts = posts.filter(post =>
-				post.title.toLowerCase().includes(searchLower) ||
-				post.content.toLowerCase().includes(searchLower) ||
-				post.titleSlug.toLowerCase().includes(searchLower)
+			posts = posts.filter(
+				(post) =>
+					post.title.toLowerCase().includes(searchLower) ||
+					post.content.toLowerCase().includes(searchLower) ||
+					post.titleSlug.toLowerCase().includes(searchLower),
 			);
 		}
 
@@ -127,7 +128,7 @@ type Props = {
 	id: string;
 	sortBy: string;
 	search?: string;
-}
+};
 export const getMurzfeedPosts = async ({ ts, id, sortBy, search }: Props) => {
 	let includeAllCategories = true;
 	let orderByField: "createdAt" | "latestCommentCreatedAt" = "createdAt";
@@ -148,9 +149,9 @@ export const getMurzfeedPosts = async ({ ts, id, sortBy, search }: Props) => {
 		ts === "first"
 			? undefined
 			: {
-				timestamp: new Date(ts),
-				id: id,
-			};
+					timestamp: new Date(ts),
+					id: id,
+				};
 
 	const results = await firebaseFetcher({
 		includeAllCategories,
@@ -162,4 +163,4 @@ export const getMurzfeedPosts = async ({ ts, id, sortBy, search }: Props) => {
 	});
 
 	return results;
-}
+};

@@ -3,8 +3,8 @@ export default function About() {
 		<div className="mt-2">
 			<h1 className="font-bold mb-2">About</h1>
 			<p>
-				Hi, I am a murzfeed reader. But I feel current
-				murzfeed is slow and bloated, hence I am trying to make it better.
+				Hi, I am a murzfeed (and recently fomo) reader. I am trying to make it
+				better and faster.
 			</p>
 		</div>
 	);

@@ -68,7 +68,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 									}}
 									className="text-white font-bold"
 								>
-									Murzfeed Lite
+									Murzfeed + fomo Lite
 								</Link>
 							</div>
 							<div className="space-x-2 flex flex-row items-center">
