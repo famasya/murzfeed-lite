@@ -70,8 +70,8 @@ export const loader: LoaderFunction = async () => {
 				description: post.content,
 				pubDate: post.createdAt.toUTCString(),
 				title: post.title,
-				link: `https://murzlite.vercel.app/post/${friendlyUrl}-${post.postId}`,
-				guid: `https://murzlite.vercel.app/post/${friendlyUrl}-${post.postId}`,
+				link: `https://murzlite.vercel.app/murz/post/${friendlyUrl}-${post.postId}`,
+				guid: `https://murzlite.vercel.app/murz/post/${friendlyUrl}-${post.postId}`,
 			};
 		}),
 	});
