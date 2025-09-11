@@ -19,5 +19,5 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	}
 
 	const response = await fomoSearch(query, Number.parseInt(page, 10));
-	return response;
+	return Response.json(response);
 };

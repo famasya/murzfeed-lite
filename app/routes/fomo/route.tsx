@@ -175,13 +175,13 @@ export default function Fomo() {
 									<div className="mt-4 flex flex-row justify-between items-center">
 										<div className="flex items-center gap-4 text-xs">
 											<span className="text-blue-700">
-												👍 {postData.numberOfLikes || 0}
+												[{postData.numberOfLikes || 0} upvotes]
 											</span>
 											<span className="text-blue-700">
-												👎 {postData.numberOfDislikes || 0}
+												[{postData.numberOfDislikes || 0} downvotes]
 											</span>
 											<span className="text-blue-700">
-												💬 {postData.numberOfComments || 0}
+												[{postData.numberOfComments || 0} comments]
 											</span>
 										</div>
 										<div>

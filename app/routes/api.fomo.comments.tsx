@@ -1,6 +1,12 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { fomoGetComments } from "~/lib/fomo";
 
+export function headers() {
+	return {
+		"Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400",
+	}
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const url = new URL(request.url);
 	const postId = url.searchParams.get("postId");
@@ -11,5 +17,5 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	}
 
 	const response = await fomoGetComments(postId, Number.parseInt(page, 10));
-	return response;
+	return Response.json(response);
 };
