@@ -81,31 +81,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
 								<a href="/rss" className="text-white">
 									[rss]
 								</a>
-								<Link
-									to="https://github.com/famasya/murzfeed-lite"
-									rel="noreferrer"
-									target="_blank"
-									className="text-white"
-								>
-									[telegram channel]
-								</Link>
 							</div>
 						</div>
 						<div className="px-2">
 							<NuqsAdapter>{children}</NuqsAdapter>
 						</div>
-						<div className="mx-auto text-center pb-2 flex flex-row justify-between">
+						<div className="mx-auto text-center pb-4 flex flex-row justify-between">
 							<div>
 								<a href="#header" className="text-center my-2 bg-slate-50 p-2 border-[1px] border-slate-300 rounded">Back to Top</a>
 							</div>
-							<Link
-								to="https://github.com/famasya/murzfeed-lite"
-								rel="noreferrer"
-								target="_blank"
-								className="mb-2"
-							>
-								[code]
-							</Link>
+							<div className="space-x-2">
+								<Link
+									to="https://github.com/famasya/murzfeed-lite"
+									rel="noreferrer"
+									target="_blank"
+									className="mb-2"
+								>
+									[code]
+								</Link>
+								<Link
+									to="https://t.me/mzfeed"
+									rel="noreferrer"
+									target="_blank"
+								>
+									[telegram updates]
+								</Link>
+							</div>
 						</div>
 					</div>
 				</div>
